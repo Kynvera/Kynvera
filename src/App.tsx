@@ -14,17 +14,6 @@ type Project = {
   featured?: boolean
 }
 
-type GithubRepo = {
-  id: number
-  name: string
-  html_url: string
-  description: string | null
-  language: string | null
-  stargazers_count: number
-  forks_count: number
-  updated_at: string
-}
-
 const projects: Project[] = [
   {
     index: '001',
@@ -95,12 +84,25 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [repos, setRepos] = useState<GithubRepo[]>([])
-  const [githubState, setGithubState] = useState<'loading' | 'ready' | 'fallback'>('loading')
+  const [githubState] = useState<'fallback'>('fallback')
 
   useEffect(() => {
     const savedTheme = window.localStorage.getItem('kynvera-theme') as 'dark' | 'light' | null
     if (savedTheme) setTheme(savedTheme)
+
+    const canUseCustomCursor = window.matchMedia('(pointer: fine)').matches
+    const cursor = document.querySelector<HTMLElement>('.cursor-dot')
+    const interactiveSelector = 'a, button, [role="button"]'
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!cursor || !canUseCustomCursor) return
+      cursor.style.transform = `translate3d(${event.clientX}px, ${event.clientY}px, 0)`
+    }
+    const handlePointerOver = (event: PointerEvent) => {
+      if (!cursor || !canUseCustomCursor) return
+      cursor.classList.toggle('is-hovering', Boolean((event.target as HTMLElement).closest(interactiveSelector)))
+    }
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerover', handlePointerOver)
 
     const revealElements = document.querySelectorAll<HTMLElement>('[data-reveal]')
     const observer = new IntersectionObserver((entries) => {
@@ -113,13 +115,11 @@ function App() {
     }, { threshold: 0.12 })
     revealElements.forEach((element) => observer.observe(element))
 
-    const controller = new AbortController()
-    fetch('https://api.github.com/orgs/Kynvera/repos?sort=updated&per_page=4', { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
-      .then((response) => response.ok ? response.json() as Promise<GithubRepo[]> : Promise.reject(new Error('GitHub unavailable')))
-      .then((data) => { setRepos(data); setGithubState('ready') })
-      .catch(() => setGithubState('fallback'))
-
-    return () => { observer.disconnect(); controller.abort() }
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerover', handlePointerOver)
+    }
   }, [])
 
   useEffect(() => {
@@ -146,6 +146,7 @@ function App() {
           <img src={logo} alt="KYNVERA" />
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
+          <a href="#top">Home</a>
           <a href="#projects">Projects</a>
           <a href="#build">What we build</a>
           <a href="#about">About</a>
@@ -162,6 +163,7 @@ function App() {
           </button>
         </div>
         <nav className="mobile-nav" aria-label="Mobile navigation">
+          <a href="#top" onClick={closeMenu}>Home <Arrow /></a>
           <a href="#projects" onClick={closeMenu}>Projects <Arrow /></a>
           <a href="#build" onClick={closeMenu}>What we build <Arrow /></a>
           <a href="#about" onClick={closeMenu}>About <Arrow /></a>
@@ -213,13 +215,13 @@ function App() {
         <section className="projects-section section-wrap" id="projects">
           <div className="section-heading" data-reveal><div><SectionLabel number="04">THE INDEX</SectionLabel><h2>Things we've built</h2></div><p>Real work, in different stages of becoming.</p></div>
           <div className="project-grid">
-            {projects.map((project) => <button className={`project-card ${project.featured ? 'featured' : ''}`} key={project.index} onClick={() => setSelectedProject(project)} data-reveal><div className="project-card-head"><span>{project.index} / {project.category}</span><span className="project-status">{project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><span className="project-link">View project <Arrow /></span></button>)}
+            {projects.map((project) => <button className={`project-card ${project.featured ? 'featured' : ''}`} key={project.index} onClick={() => setSelectedProject(project)} aria-label={`Open details for ${project.name}`} data-reveal><div className="project-card-head"><span>{project.index} / {project.category}</span><span className="project-status">{project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><span className="project-link">View project <Arrow /></span></button>)}
           </div>
         </section>
 
         <section className="github-section section-wrap" id="github">
           <div className="github-heading" data-reveal><SectionLabel number="05">THE PUBLIC LAYER</SectionLabel><h2>Built in public.</h2><p>Many of our experiments live openly on GitHub. Follow the work, explore the code, and see what we're building next.</p><a className="button button-primary" href="https://github.com/arpan085" target="_blank" rel="noreferrer">Explore GitHub <Arrow /></a></div>
-          <div className="repo-panel" data-reveal><div className="repo-panel-top"><span>REPOSITORIES / LIVE DATA</span><span className="live-indicator"><i />{githubState === 'ready' ? 'LIVE' : githubState === 'loading' ? 'CONNECTING' : 'MEMBERS'}</span></div>{repos.length > 0 ? repos.map((repo) => <a className="repo-row" href={repo.html_url} target="_blank" rel="noreferrer" key={repo.id}><div><h3>{repo.name}</h3><p>{repo.description ?? 'A Kynvera repository.'}</p></div><div className="repo-stats"><span>{repo.language ?? 'CODE'}</span><span>★ {repo.stargazers_count}</span><span>⑂ {repo.forks_count}</span></div></a>) : <div className="repo-fallback"><p>Explore the people behind the work while the organization feed connects.</p><div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">arpan085 <Arrow /></a><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">26diyasubedi <Arrow /></a></div></div>}</div>
+          <div className="repo-panel" data-reveal><div className="repo-panel-top"><span>REPOSITORIES / PUBLIC LINKS</span><span className="live-indicator" aria-live="polite"><i />{githubState === 'fallback' ? 'MEMBERS' : 'LIVE'}</span></div><div className="repo-fallback"><p>Explore the people behind the work and follow the code as the public organization grows.</p><div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">arpan085 <Arrow /></a><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">26diyasubedi <Arrow /></a></div></div></div>
         </section>
 
         <section className="process-section section-wrap" data-reveal>
