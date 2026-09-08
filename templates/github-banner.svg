@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#0B0E11"/>
+  <rect width="1280" height="640" fill="url(#p)" opacity=".55"/>
+  <path d="M80 530h1120" stroke="#2A353E"/>
+  <g transform="translate(80 86)" fill="#55D6E8"><path d="M8 10h14l20 22-20 22H8l20-22L8 10Zm34 0h14L36 32l20 22H42L22 32 42 10Z"/></g>
+  <text x="80" y="280" fill="#EEF3F5" font-family="Manrope,Arial,sans-serif" font-size="76" font-weight="700" letter-spacing="8">KYNVERA</text>
+  <text x="84" y="338" fill="#A8B4BD" font-family="JetBrains Mono,monospace" font-size="20" letter-spacing="2">IDEAS INTO DIGITAL REALITY.</text>
+  <text x="80" y="574" fill="#55D6E8" font-family="JetBrains Mono,monospace" font-size="14" letter-spacing="2">BUILD / EXPLORE / RELEASE</text>
+  <defs><pattern id="p" width="64" height="64" patternUnits="userSpaceOnUse"><path d="M0 0h64v64H0z" fill="none" stroke="#55D6E8" stroke-opacity=".09"/><path d="M16 16h14l18 16-18 16H16l18-16-18-16Zm34 0h14L46 32l18 16H50L32 32l18-16Z" fill="#55D6E8" fill-opacity=".08"/></pattern></defs>
+</svg>

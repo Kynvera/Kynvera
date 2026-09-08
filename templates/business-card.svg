@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="600" viewBox="0 0 1050 600">
+  <rect width="1050" height="600" fill="#0B0E11"/>
+  <g transform="translate(72 70)" fill="#55D6E8"><path d="M8 10h14l20 22-20 22H8l20-22L8 10Zm34 0h14L36 32l20 22H42L22 32 42 10Z"/></g>
+  <text x="72" y="224" fill="#EEF3F5" font-family="Manrope,Arial,sans-serif" font-size="46" font-weight="700" letter-spacing="5">KYNVERA</text>
+  <text x="72" y="270" fill="#A8B4BD" font-family="JetBrains Mono,monospace" font-size="16" letter-spacing="1">IDEAS INTO DIGITAL REALITY.</text>
+  <path d="M72 430h906" stroke="#2A353E"/>
+  <text x="72" y="486" fill="#55D6E8" font-family="JetBrains Mono,monospace" font-size="14">COLLABORATIVE TECHNOLOGY + CREATIVE ORGANIZATION</text>
+  <text x="72" y="528" fill="#A8B4BD" font-family="JetBrains Mono,monospace" font-size="13">GITHUB / ARPAN085 · 26DIYASUBEDI</text>
+</svg>

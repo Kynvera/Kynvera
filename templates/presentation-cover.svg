@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <rect width="1600" height="900" fill="#0B0E11"/>
+  <path d="M96 748h1408" stroke="#2A353E"/>
+  <g transform="translate(96 108)" fill="#55D6E8"><path d="M8 10h14l20 22-20 22H8l20-22L8 10Zm34 0h14L36 32l20 22H42L22 32 42 10Z"/></g>
+  <text x="96" y="390" fill="#EEF3F5" font-family="Manrope,Arial,sans-serif" font-size="108" font-weight="700" letter-spacing="7">KYNVERA</text>
+  <text x="100" y="468" fill="#A8B4BD" font-family="JetBrains Mono,monospace" font-size="26" letter-spacing="2">IDEAS INTO DIGITAL REALITY.</text>
+  <text x="96" y="810" fill="#55D6E8" font-family="JetBrains Mono,monospace" font-size="16" letter-spacing="2">DOCUMENT / 001</text>
+</svg>

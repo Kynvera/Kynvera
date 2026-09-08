@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KYNVERA Brand System</title>
+  <meta name="description" content="Kynvera visual identity review board.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Manrope:wght@500;650;700&display=swap');
+    :root { color-scheme: dark; --void:#0B0E11; --carbon:#12171C; --graphite:#1B232A; --wire:#2A353E; --mist:#A8B4BD; --cloud:#EEF3F5; --signal:#55D6E8; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--void); color:var(--cloud); font-family:Manrope, sans-serif; }
+    main { max-width:1280px; margin:auto; padding:48px clamp(20px, 5vw, 80px) 96px; }
+    header { min-height:420px; display:grid; align-content:center; border-bottom:1px solid var(--wire); position:relative; overflow:hidden; }
+    header:before { content:""; position:absolute; inset:0; opacity:.35; background:url('../assets/pattern/kynvera-pattern.svg') center/256px; mask-image:linear-gradient(90deg, transparent, #000 25%, #000 70%, transparent); }
+    header>* { position:relative; }
+    .eyebrow, .label { color:var(--signal); font:600 11px/1.4 'JetBrains Mono', monospace; letter-spacing:.14em; text-transform:uppercase; }
+    h1 { max-width:780px; margin:28px 0 20px; font-size:clamp(48px, 8vw, 104px); line-height:.96; letter-spacing:-.05em; }
+    .lede { max-width:520px; color:var(--mist); font-size:18px; line-height:1.6; }
+    section { padding:72px 0 0; }
+    h2 { margin:0 0 24px; font-size:28px; letter-spacing:-.02em; }
+    .grid { display:grid; grid-template-columns:repeat(12,1fr); gap:16px; }
+    .panel { background:var(--carbon); border:1px solid var(--wire); min-height:180px; padding:28px; display:flex; align-items:center; justify-content:center; }
+    .panel.light { background:var(--cloud); }
+    .panel.signal { background:var(--signal); }
+    .wide { grid-column:span 8; } .third { grid-column:span 4; } .half { grid-column:span 6; }
+    .panel img { max-width:100%; max-height:100%; }
+    .swatches { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .swatch { min-height:120px; padding:12px; display:flex; flex-direction:column; justify-content:end; font:600 10px 'JetBrains Mono', monospace; letter-spacing:.08em; }
+    .swatch span { opacity:.72; margin-top:4px; }
+    .void{background:#0B0E11}.carbon{background:#12171C}.graphite{background:#1B232A}.wire{background:#2A353E}.mist{background:#A8B4BD;color:#0B0E11}.cloud{background:#EEF3F5;color:#0B0E11}.signal{background:#55D6E8;color:#0B0E11}.violet{background:#8E86D8;color:#0B0E11}
+    .type-card { display:grid; gap:14px; justify-items:start; align-content:center; }
+    .display { font-size:48px; line-height:1; letter-spacing:-.04em; }
+    .mono { color:var(--signal); font:600 12px 'JetBrains Mono', monospace; letter-spacing:.12em; }
+    footer { color:var(--mist); border-top:1px solid var(--wire); margin-top:80px; padding-top:24px; font:12px 'JetBrains Mono',monospace; }
+    @media (max-width:700px) { main{padding-top:28px}.wide,.third,.half{grid-column:span 12}.swatches{grid-template-columns:repeat(2,1fr)}.panel{min-height:150px} }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">SYSTEM / KYNVERA · BRAND REVIEW / 001</div>
+      <h1>Ideas into<br>digital reality.</h1>
+      <p class="lede">A visual identity for an independent technology and creative organization. Precise enough for systems, open enough for experiments.</p>
+    </header>
+    <section>
+      <h2>Logo family</h2>
+      <div class="grid">
+        <div class="panel wide"><img src="../assets/logo/kynvera-primary.svg" alt="Kynvera primary logo"></div>
+        <div class="panel third light"><img src="../assets/logo/kynvera-monochrome.svg" alt="Kynvera monochrome logo"></div>
+        <div class="panel third signal"><img src="../assets/logo/kynvera-symbol.svg" alt="Kynvera symbol"></div>
+        <div class="panel wide"><img src="../assets/logo/kynvera-stacked.svg" alt="Kynvera stacked logo" style="height:140px;color:#55D6E8"></div>
+      </div>
+    </section>
+    <section>
+      <h2>Palette</h2>
+      <div class="swatches">
+        <div class="swatch void">VOID<span>#0B0E11</span></div><div class="swatch carbon">CARBON<span>#12171C</span></div><div class="swatch graphite">GRAPHITE<span>#1B232A</span></div><div class="swatch wire">WIRE<span>#2A353E</span></div><div class="swatch mist">MIST<span>#A8B4BD</span></div><div class="swatch cloud">CLOUD<span>#EEF3F5</span></div><div class="swatch signal">SIGNAL<span>#55D6E8</span></div><div class="swatch violet">VIOLET TRACE<span>#8E86D8</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>Typography</h2>
+      <div class="grid">
+        <div class="panel half type-card"><div class="label">DISPLAY / MANROPE</div><div class="display">Build what matters.</div></div>
+        <div class="panel half type-card"><div class="label">TECHNICAL / JETBRAINS MONO</div><div class="mono">IDEA / EXPLORE / BUILD / TEST / RELEASE</div></div>
+      </div>
+    </section>
+    <section>
+      <h2>Applications</h2>
+      <div class="grid">
+        <div class="panel wide"><img src="../templates/github-banner.svg" alt="Kynvera GitHub banner"></div>
+        <div class="panel third"><img src="../templates/social-project.svg" alt="Kynvera social project template"></div>
+        <div class="panel third"><img src="../templates/business-card.svg" alt="Kynvera business card template"></div>
+        <div class="panel wide"><img src="../templates/presentation-cover.svg" alt="Kynvera presentation cover"></div>
+      </div>
+    </section>
+    <footer>KYNVERA · COMPLEX IDEAS. SIMPLE INTERFACES. · 2026</footer>
+  </main>
+</body>
+</html>

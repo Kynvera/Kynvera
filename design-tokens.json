@@ -1,0 +1,58 @@
+{
+  "brand": {
+    "name": "KYNVERA",
+    "tagline": "Ideas into digital reality.",
+    "principle": "Complex ideas. Simple interfaces.",
+    "github": {
+      "members": ["arpan085", "26diyasubedi"],
+      "organization": "Kynvera"
+    }
+  },
+  "colors": {
+    "void": { "value": "#0B0E11", "rgb": "11 14 17", "hsl": "210 21% 5%" },
+    "carbon": { "value": "#12171C", "rgb": "18 23 28", "hsl": "210 22% 9%" },
+    "graphite": { "value": "#1B232A", "rgb": "27 35 42", "hsl": "207 22% 14%" },
+    "wire": { "value": "#2A353E", "rgb": "42 53 62", "hsl": "207 19% 20%" },
+    "mist": { "value": "#A8B4BD", "rgb": "168 180 189", "hsl": "205 14% 70%" },
+    "cloud": { "value": "#EEF3F5", "rgb": "238 243 245", "hsl": "195 23% 95%" },
+    "signal": { "value": "#55D6E8", "rgb": "85 214 232", "hsl": "188 74% 62%" },
+    "signalDeep": { "value": "#1596AD", "rgb": "21 150 173", "hsl": "189 78% 38%" },
+    "violetTrace": { "value": "#8E86D8", "rgb": "142 134 216", "hsl": "246 50% 69%" }
+  },
+  "typography": {
+    "display": "Manrope, sans-serif",
+    "technical": "JetBrains Mono, monospace",
+    "displaySize": "72px",
+    "displayLineHeight": "1.1",
+    "bodySize": "17px",
+    "bodyLineHeight": "1.65",
+    "technicalSize": "11px",
+    "technicalTracking": "0.12em"
+  },
+  "layout": {
+    "maxContent": "1280px",
+    "gutter": "clamp(20px, 5vw, 80px)",
+    "gridUnit": "8px",
+    "logoClearSpace": "1 symbol module"
+  },
+  "shape": {
+    "radiusSmall": "2px",
+    "radiusMedium": "4px",
+    "borderWidth": "1px",
+    "focusRing": "0 0 0 3px rgba(85, 214, 232, 0.32)"
+  },
+  "motion": {
+    "easeStandard": "cubic-bezier(0.22, 1, 0.36, 1)",
+    "easeLinear": "linear",
+    "logoReveal": "1600ms",
+    "microInteraction": "180ms",
+    "sectionReveal": "700ms"
+  },
+  "sizes": {
+    "iconSmall": "16px",
+    "iconDefault": "24px",
+    "iconLarge": "32px",
+    "logoHorizontalDigital": "120px",
+    "symbolDigital": "16px"
+  }
+}

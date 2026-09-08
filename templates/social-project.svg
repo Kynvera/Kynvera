@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#0B0E11"/>
+  <path d="M72 72h936v936H72z" fill="none" stroke="#2A353E"/>
+  <path d="M72 856h936" stroke="#2A353E"/>
+  <g transform="translate(72 72)" fill="#55D6E8"><path d="M8 10h14l20 22-20 22H8l20-22L8 10Zm34 0h14L36 32l20 22H42L22 32 42 10Z"/></g>
+  <text x="936" y="118" text-anchor="end" fill="#55D6E8" font-family="JetBrains Mono,monospace" font-size="18" letter-spacing="2">001 / CATEGORY</text>
+  <text x="104" y="430" fill="#EEF3F5" font-family="Manrope,Arial,sans-serif" font-size="78" font-weight="700">PROJECT</text>
+  <text x="104" y="520" fill="#EEF3F5" font-family="Manrope,Arial,sans-serif" font-size="78" font-weight="700">NAME</text>
+  <text x="104" y="612" fill="#A8B4BD" font-family="JetBrains Mono,monospace" font-size="21" letter-spacing="1">A SHORT, SPECIFIC DESCRIPTION.</text>
+  <text x="104" y="936" fill="#55D6E8" font-family="JetBrains Mono,monospace" font-size="18" letter-spacing="2">KYNVERA / IDEAS INTO DIGITAL REALITY.</text>
+</svg>
