@@ -21,7 +21,7 @@ This is the source package for Kynvera's visual identity. It is intentionally ve
 - Principle: `Complex ideas. Simple interfaces.`
 - GitHub members supplied: `arpan085`, `26diyasubedi`
 
-## Source-of-truth rule
+## Source-of-truth rule 
 
 Use the SVG assets as the master artwork. Export PNGs at the required size from these vectors rather than redrawing the mark in another tool. The palette, spacing, and animation timings live in `design-tokens.json`.
 
