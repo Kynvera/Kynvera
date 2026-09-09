@@ -9,19 +9,19 @@
     }
   },
   "colors": {
-    "void": { "value": "#0B0E11", "rgb": "11 14 17", "hsl": "210 21% 5%" },
-    "carbon": { "value": "#12171C", "rgb": "18 23 28", "hsl": "210 22% 9%" },
-    "graphite": { "value": "#1B232A", "rgb": "27 35 42", "hsl": "207 22% 14%" },
-    "wire": { "value": "#2A353E", "rgb": "42 53 62", "hsl": "207 19% 20%" },
-    "mist": { "value": "#A8B4BD", "rgb": "168 180 189", "hsl": "205 14% 70%" },
-    "cloud": { "value": "#EEF3F5", "rgb": "238 243 245", "hsl": "195 23% 95%" },
-    "signal": { "value": "#55D6E8", "rgb": "85 214 232", "hsl": "188 74% 62%" },
-    "signalDeep": { "value": "#1596AD", "rgb": "21 150 173", "hsl": "189 78% 38%" },
-    "violetTrace": { "value": "#8E86D8", "rgb": "142 134 216", "hsl": "246 50% 69%" }
+    "void": { "value": "#F3EFE7", "rgb": "243 239 231", "hsl": "38 29% 93%" },
+    "carbon": { "value": "#FFFDF8", "rgb": "255 253 248", "hsl": "45 100% 99%" },
+    "graphite": { "value": "#E8E0D4", "rgb": "232 224 212", "hsl": "36 30% 87%" },
+    "wire": { "value": "#C8BCAE", "rgb": "200 188 174", "hsl": "34 20% 73%" },
+    "mist": { "value": "#6D665E", "rgb": "109 102 94", "hsl": "33 7% 40%" },
+    "cloud": { "value": "#171717", "rgb": "23 23 23", "hsl": "0 0% 9%" },
+    "signal": { "value": "#E9472F", "rgb": "233 71 47", "hsl": "8 81% 55%" },
+    "signalDeep": { "value": "#BD2B1D", "rgb": "189 43 29", "hsl": "5 73% 43%" },
+    "violetTrace": { "value": "#B2D449", "rgb": "178 212 73", "hsl": "75 61% 56%" }
   },
   "typography": {
-    "display": "Manrope, sans-serif",
-    "technical": "JetBrains Mono, monospace",
+    "display": "Space Grotesk, sans-serif",
+    "technical": "DM Mono, monospace",
     "displaySize": "72px",
     "displayLineHeight": "1.1",
     "bodySize": "17px",

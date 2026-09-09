@@ -104,7 +104,7 @@ function Arrow() {
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [theme, setTheme] = useState<'dark' | 'light'>('light')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
   const [projectFilter, setProjectFilter] = useState('ALL')
   const [comparison, setComparison] = useState<string[]>([])

@@ -59,24 +59,26 @@ Do not rotate, stretch, outline, add shadows, apply gradients, recolor arbitrari
 
 ## 5. Color Palette
 
+The website uses a warm editorial palette: paper and ink establish the page, vermilion marks action and movement, and chartreuse identifies active or experimental states.
+
 | Token | HEX | RGB | HSL | Use |
 |---|---|---|---|---|
-| Void | `#0B0E11` | 11, 14, 17 | 210 21% 5% | Primary background |
-| Carbon | `#12171C` | 18, 23, 28 | 210 22% 9% | Deep surfaces |
-| Graphite | `#1B232A` | 27, 35, 42 | 207 22% 14% | Cards, panels |
-| Wire | `#2A353E` | 42, 53, 62 | 207 19% 20% | Borders, rules |
-| Mist | `#A8B4BD` | 168, 180, 189 | 205 14% 70% | Muted text |
-| Cloud | `#EEF3F5` | 238, 243, 245 | 195 23% 95% | Primary text |
-| Signal | `#55D6E8` | 85, 214, 232 | 188 74% 62% | Accent, links, active state |
-| Signal Deep | `#1596AD` | 21, 150, 173 | 189 78% 38% | Accent on light surfaces |
-| Violet Trace | `#8E86D8` | 142, 134, 216 | 246 50% 69% | Optional research accent |
+| Void | `#F3EFE7` | 243, 239, 231 | 38 29% 93% | Primary background |
+| Carbon | `#FFFDF8` | 255, 253, 248 | 45 100% 99% | Deep surfaces |
+| Graphite | `#E8E0D4` | 232, 224, 212 | 36 30% 87% | Cards, panels |
+| Wire | `#C8BCAE` | 200, 188, 174 | 34 20% 73% | Borders, rules |
+| Mist | `#6D665E` | 109, 102, 94 | 33 7% 40% | Muted text |
+| Cloud | `#171717` | 23, 23, 23 | 0 0% 9% | Primary text |
+| Signal | `#E9472F` | 233, 71, 47 | 8 81% 55% | Accent, links, active state |
+| Signal Deep | `#BD2B1D` | 189, 43, 29 | 5 73% 43% | Accent on dark surfaces |
+| Violet Trace | `#B2D449` | 178, 212, 73 | 75 61% 56% | Active and experimental accent |
 
 Signal is a measured highlight, not a page fill. Violet Trace should appear only in experimental or research contexts.
 
 ## 6. Typography
 
-- **Display / interface:** Manrope, fallback `sans-serif`
-- **Technical / metadata:** JetBrains Mono, fallback `monospace`
+- **Display / interface:** Space Grotesk, fallback `sans-serif`
+- **Technical / metadata:** DM Mono, fallback `monospace`
 
 Type hierarchy:
 
