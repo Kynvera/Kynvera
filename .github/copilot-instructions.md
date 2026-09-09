@@ -1,0 +1,13 @@
+﻿# Kynvera
+- React 19+ TypeScript + Vite + CSS.
+- Respect the existing architecture before introducing new dependencies.
+- Read brand-guide.md and design-tokens.json before visual changes.
+- Preserve the Kynvera dark/light theme system.
+- Prefer semantic HTML and accessible keyboard interaction.
+- Respect prefers-reduced-motion.
+- Never invent clients, testimonials, metrics, results, partnerships, or expertise.
+- Reuse existing components and styles before creating duplicates.
+- Never expose secrets in frontend code.
+- External integrations must fail gracefully and must not break rendering.
+- Before completion: inspect changes, run npm run build, review console errors, and check dark/light + mobile/desktop states.
+- Do not make unrelated changes in the same task.

@@ -1,4 +1,15 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import ContactForm from './components/ContactForm'
+import NewsletterSignup from './components/NewsletterSignup'
+import ServicesSection from './components/ServicesSection'
+import Search from './components/Search'
+import CaseStudiesSection from './components/CaseStudiesSection'
+import BlogSection, { articles } from './components/BlogSection'
+import ProcessSection, { process } from './components/ProcessSection'
+import NewsletterIssues from './components/NewsletterIssues'
+import ResourceGuide from './components/ResourceGuide'
+import RelatedProjects from './components/RelatedProjects'
+import { loadAnalytics, trackEvent } from './lib/analytics'
 
 type Project = {
   index: string
@@ -69,18 +80,18 @@ const capabilities = [
   { number: '05', title: 'Open Source', text: 'Tools and projects shared with the wider developer community.', tags: ['Public', 'Useful', 'Learning', 'Release'] },
 ]
 
-const process = [
-  ['01', 'Discover', 'Find the problem.'],
-  ['02', 'Explore', 'Research possible solutions.'],
-  ['03', 'Build', 'Turn the idea into a working system.'],
-  ['04', 'Test', 'Break it, improve it, repeat.'],
-  ['05', 'Release', 'Share the result.'],
-]
-
 const labs = [
   ['EXPERIMENT / 001', 'Small systems, careful questions.', 'ACTIVE'],
   ['EXPERIMENT / 002', 'Prototypes that teach us something.', 'EXPERIMENTAL'],
   ['PROTOTYPE / 003', 'Ideas waiting for a clearer shape.', 'ARCHIVED'],
+]
+
+const searchItems = [
+  ...projects.map((project) => ({ id: `project-${project.index}`, name: project.name, description: project.description, type: 'PROJECT', href: '#projects', tags: project.technologies.join(' ') })),
+  ...capabilities.map((capability) => ({ id: `capability-${capability.number}`, name: capability.title, description: capability.text, type: 'CAPABILITY', href: '#build', tags: capability.tags.join(' ') })),
+  ...labs.map(([label, text, status]) => ({ id: label, name: text, description: status, type: 'LAB', href: '#lab', tags: status })),
+  ...process.map(([number, title, text]) => ({ id: `process-${number}`, name: title, description: text, type: 'PROCESS', href: '#process' })),
+  ...articles.map((article) => ({ id: `article-${article.id}`, name: article.title, description: article.summary, type: 'NOTE', href: '#notes', tags: article.category })),
 ]
 
 function SectionLabel({ children, number }: { children: string; number?: string }) {
@@ -95,10 +106,16 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [projectFilter, setProjectFilter] = useState('ALL')
+  const [comparison, setComparison] = useState<string[]>([])
+  const [scrollProgress, setScrollProgress] = useState(0)
   const [repos, setRepos] = useState<GithubRepo[]>([])
   const [githubState, setGithubState] = useState<'loading' | 'ready' | 'fallback'>('loading')
+  const openerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
+    const analyticsSiteId = import.meta.env.VITE_FATHOM_SITE_ID
+    const removeAnalytics = analyticsSiteId ? loadAnalytics(analyticsSiteId) : () => undefined
     const savedTheme = window.localStorage.getItem('kynvera-theme') as 'dark' | 'light' | null
     if (savedTheme) setTheme(savedTheme)
 
@@ -114,12 +131,27 @@ function App() {
     revealElements.forEach((element) => observer.observe(element))
 
     const controller = new AbortController()
+    const trackGithubClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement
+      if (target.closest('a[href*="github.com"]')) trackEvent('github_click')
+    }
+    document.addEventListener('click', trackGithubClick)
     fetch('https://api.github.com/orgs/Kynvera/repos?sort=updated&per_page=4', { signal: controller.signal, headers: { Accept: 'application/vnd.github+json' } })
       .then((response) => response.ok ? response.json() as Promise<GithubRepo[]> : Promise.reject(new Error('GitHub unavailable')))
       .then((data) => { setRepos(data); setGithubState('ready') })
       .catch(() => setGithubState('fallback'))
 
-    return () => { observer.disconnect(); controller.abort() }
+    return () => { observer.disconnect(); controller.abort(); document.removeEventListener('click', trackGithubClick); removeAnalytics() }
+  }, [])
+
+  useEffect(() => {
+    const updateProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0)
+    }
+    updateProgress()
+    window.addEventListener('scroll', updateProgress, { passive: true })
+    return () => window.removeEventListener('scroll', updateProgress)
   }, [])
 
   useEffect(() => {
@@ -129,29 +161,52 @@ function App() {
 
   useEffect(() => {
     document.body.style.overflow = selectedProject ? 'hidden' : ''
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === 'Escape') setSelectedProject(null) }
+    if (selectedProject) window.requestAnimationFrame(() => document.querySelector<HTMLElement>('.project-modal button, .project-modal a[href]')?.focus())
+    if (!selectedProject) openerRef.current?.focus()
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (!selectedProject) return
+      if (event.key === 'Escape') setSelectedProject(null)
+      if (event.key === 'Tab') {
+        const dialog = document.querySelector<HTMLElement>('.project-modal')
+        const focusable = dialog ? Array.from(dialog.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')) : []
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
+      }
+    }
     window.addEventListener('keydown', closeOnEscape)
     return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', closeOnEscape) }
   }, [selectedProject])
 
   const closeMenu = () => setMenuOpen(false)
   const logo = theme === 'light' ? '/assets/logo/kynvera-monochrome.svg' : '/assets/logo/kynvera-primary.svg'
+  const projectFilters = ['ALL', ...Array.from(new Set(projects.map((project) => project.category.split(' / ')[0])))]
+  const filteredProjects = projectFilter === 'ALL' ? projects : projects.filter((project) => project.category.startsWith(projectFilter))
+  const toggleComparison = (projectIndex: string) => setComparison((current) => current.includes(projectIndex) ? current.filter((index) => index !== projectIndex) : current.length < 2 ? [...current, projectIndex] : current)
+  const comparedProjects = projects.filter((project) => comparison.includes(project.index))
 
   return (
     <div className="site-shell">
+      <a className="skip-link" href="#top">Skip to main content</a>
       <div className="cursor-dot" aria-hidden="true" />
       <div className="grid-field" aria-hidden="true" />
       <header className={`site-header ${menuOpen ? 'menu-open' : ''}`}>
+        <span className="scroll-progress" style={{ '--scroll-progress': `${scrollProgress}%` } as CSSProperties} aria-hidden="true" />
         <a className="brand-lockup" href="#top" onClick={closeMenu} aria-label="Kynvera home">
           <img src={logo} alt="KYNVERA" />
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
           <a href="#projects">Projects</a>
+          <a href="#services">Services</a>
+          <a href="#notes">Notes</a>
           <a href="#build">What we build</a>
           <a href="#about">About</a>
           <a href="#github">GitHub</a>
         </nav>
         <div className="header-actions">
+          <Search items={searchItems} />
           <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
             <span className="theme-orb" />
             <span>{theme === 'dark' ? 'LIGHT' : 'DARK'}</span>
@@ -163,6 +218,8 @@ function App() {
         </div>
         <nav className="mobile-nav" aria-label="Mobile navigation">
           <a href="#projects" onClick={closeMenu}>Projects <Arrow /></a>
+          <a href="#services" onClick={closeMenu}>Services <Arrow /></a>
+          <a href="#notes" onClick={closeMenu}>Notes <Arrow /></a>
           <a href="#build" onClick={closeMenu}>What we build <Arrow /></a>
           <a href="#about" onClick={closeMenu}>About <Arrow /></a>
           <a href="#github" onClick={closeMenu}>GitHub <Arrow /></a>
@@ -212,36 +269,43 @@ function App() {
 
         <section className="projects-section section-wrap" id="projects">
           <div className="section-heading" data-reveal><div><SectionLabel number="04">THE INDEX</SectionLabel><h2>Things we've built</h2></div><p>Real work, in different stages of becoming.</p></div>
-          <div className="project-grid">
-            {projects.map((project) => <button className={`project-card ${project.featured ? 'featured' : ''}`} key={project.index} onClick={() => setSelectedProject(project)} data-reveal><div className="project-card-head"><span>{project.index} / {project.category}</span><span className="project-status">{project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><span className="project-link">View project <Arrow /></span></button>)}
-          </div>
+          <div className="project-tools" data-reveal><div className="project-filters" role="group" aria-label="Filter projects">{projectFilters.map((filter) => <button className={projectFilter === filter ? 'active' : ''} type="button" key={filter} onClick={() => setProjectFilter(filter)}>{filter}</button>)}</div><span className="project-tool-hint">Select up to two to compare</span></div>
+          <div className="project-grid">{filteredProjects.map((project) => <div className={`project-card-wrap ${comparison.includes(project.index) ? 'is-compared' : ''}`} key={project.index} data-reveal><button className={`project-card ${project.featured ? 'featured' : ''}`} onClick={(event) => { openerRef.current = event.currentTarget; trackEvent('project_clicked'); setSelectedProject(project) }}><div className="project-card-head"><span>{project.index} / {project.category}</span><span className="project-status">{project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><span className="project-link">View project <Arrow /></span></button><button className="compare-toggle" type="button" onClick={() => toggleComparison(project.index)} aria-pressed={comparison.includes(project.index)}>{comparison.includes(project.index) ? 'Compared' : 'Compare'}</button></div>)}</div>
+          {comparedProjects.length > 0 && <div className="comparison-tray" data-reveal><div><span className="section-label"><span>COMPARE</span>SELECTED WORK</span><h3>{comparedProjects.length === 1 ? 'Choose one more project.' : 'Two directions, side by side.'}</h3></div><div className="comparison-items">{comparedProjects.map((project) => <div key={project.index}><span>{project.category}</span><strong>{project.name}</strong><small>{project.status} · {project.technologies.join(' · ')}</small></div>)}</div><button className="comparison-clear" type="button" onClick={() => setComparison([])}>Clear</button></div>}
         </section>
+
+        <section className="related-project-section section-wrap" aria-label="Related projects"><RelatedProjects current={projects[0]} projects={projects} onSelect={(project) => setSelectedProject(projects.find((item) => item.index === project.index) ?? null)} /></section>
+
+        <CaseStudiesSection />
+        <BlogSection />
 
         <section className="github-section section-wrap" id="github">
           <div className="github-heading" data-reveal><SectionLabel number="05">THE PUBLIC LAYER</SectionLabel><h2>Built in public.</h2><p>Many of our experiments live openly on GitHub. Follow the work, explore the code, and see what we're building next.</p><a className="button button-primary" href="https://github.com/arpan085" target="_blank" rel="noreferrer">Explore GitHub <Arrow /></a></div>
-          <div className="repo-panel" data-reveal><div className="repo-panel-top"><span>REPOSITORIES / LIVE DATA</span><span className="live-indicator"><i />{githubState === 'ready' ? 'LIVE' : githubState === 'loading' ? 'CONNECTING' : 'MEMBERS'}</span></div>{repos.length > 0 ? repos.map((repo) => <a className="repo-row" href={repo.html_url} target="_blank" rel="noreferrer" key={repo.id}><div><h3>{repo.name}</h3><p>{repo.description ?? 'A Kynvera repository.'}</p></div><div className="repo-stats"><span>{repo.language ?? 'CODE'}</span><span>★ {repo.stargazers_count}</span><span>⑂ {repo.forks_count}</span></div></a>) : <div className="repo-fallback"><p>Explore the people behind the work while the organization feed connects.</p><div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">arpan085 <Arrow /></a><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">26diyasubedi <Arrow /></a></div></div>}</div>
+          <div className="repo-panel" data-reveal><div className="repo-panel-top"><span>REPOSITORIES / LIVE DATA</span><span className="live-indicator"><i />{githubState === 'ready' ? 'LIVE' : githubState === 'loading' ? 'CONNECTING' : 'MEMBERS'}</span></div>{githubState === 'loading' ? <div className="repo-loading" aria-label="Loading repositories"><span /><span /><span /></div> : repos.length > 0 ? repos.map((repo) => <a className="repo-row" href={repo.html_url} target="_blank" rel="noreferrer" key={repo.id}><div><h3>{repo.name}</h3><p>{repo.description ?? 'A Kynvera repository.'}</p></div><div className="repo-stats"><span>{repo.language ?? 'CODE'}</span><span>★ {repo.stargazers_count}</span><span>⑂ {repo.forks_count}</span></div></a>) : <div className="repo-fallback"><p>Explore the people behind the work while the organization feed connects.</p><div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">arpan085 <Arrow /></a><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">26diyasubedi <Arrow /></a></div></div>}</div>
         </section>
 
-        <section className="process-section section-wrap" data-reveal>
-          <SectionLabel number="06">THE METHOD</SectionLabel><div className="process-intro"><h2>How we work</h2><p>Progress rarely happens in a straight line. We keep the loop visible.</p></div>
-          <div className="process-track">{process.map(([number, title, text], index) => <div className="process-step" key={number} style={{ '--step-delay': `${index * 80}ms` } as CSSProperties}><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></div>)}</div>
-        </section>
+        <ProcessSection />
 
         <section className="about-section section-wrap" id="about">
           <div className="about-copy" data-reveal><SectionLabel number="07">THE REASON</SectionLabel><h2>Why Kynvera?</h2><p>Kynvera is a collaborative space for two people who enjoy building, experimenting, creating, and learning together.</p><p>We don't want to build things simply because they are technically possible. We want to build things that are useful, interesting, beautiful, or worth exploring.</p></div>
           <div className="duality" data-reveal><div className="duality-side tech"><span className="duality-label">TECHNOLOGY</span><strong>Systems<br />that work.</strong><ul><li>Python</li><li>Backend</li><li>AI / ML</li><li>Automation</li><li>Systems</li></ul></div><div className="duality-join"><img src="/assets/logo/kynvera-symbol.svg" alt="" /></div><div className="duality-side creative"><span className="duality-label">CREATIVE</span><strong>Ideas<br />with a voice.</strong><ul><li>Writing</li><li>Digital publishing</li><li>Visual storytelling</li><li>Web experiences</li><li>Ideas</li></ul></div></div>
+          <div className="about-detail-grid" data-reveal><div><span className="duality-label">WHAT MATTERS</span><ul><li>Useful over merely possible.</li><li>Interesting enough to explore.</li><li>Beautiful enough to keep using.</li></ul></div><div><span className="duality-label">HOW WE MOVE</span><p>Discover the problem. Explore the shape. Build a version. Test what breaks. Release what is worth sharing.</p></div><div><span className="duality-label">THE POSTURE</span><p>Independent in direction, collaborative in practice, and curious about what the next version can teach us.</p></div></div>
         </section>
 
         <section className="founders-section section-wrap" data-reveal>
           <div className="section-heading"><div><SectionLabel number="08">THE PEOPLE</SectionLabel><h2>The people behind Kynvera</h2></div><p>Two people, sharing a practice of making and learning.</p></div>
-          <div className="founder-grid"><article><span className="founder-index">FOUNDER / 01</span><h3>Arpan</h3><p className="founder-role">Developer</p><p>Focused on Python, backend development, automation, and learning AI/ML through practical projects.</p><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">github.com/arpan085 <Arrow /></a></article><article><span className="founder-index">FOUNDER / 02</span><h3>Diya</h3><p className="founder-role">Writer &amp; Creative Contributor</p><p>Focused on poetry, writing, creative expression, and digital publishing.</p><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">github.com/26diyasubedi <Arrow /></a></article></div>
+          <div className="founder-grid"><article><span className="founder-index">FOUNDER / 01</span><h3>Arpan</h3><p className="founder-role">Developer</p><div className="founder-focus"><span>FOCUS</span><strong>Systems that work.</strong><p>Python, backend development, automation, and learning AI/ML through practical projects.</p></div><div className="founder-focus"><span>CONTRIBUTION</span><p>Turns complex technical questions into working software that can be tested, improved, and shared.</p></div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">github.com/arpan085 <Arrow /></a></article><article><span className="founder-index">FOUNDER / 02</span><h3>Diya</h3><p className="founder-role">Writer &amp; Creative Contributor</p><div className="founder-focus"><span>FOCUS</span><strong>Ideas with a voice.</strong><p>Poetry, writing, creative expression, and digital publishing.</p></div><div className="founder-focus"><span>CONTRIBUTION</span><p>Shapes the creative direction and helps give digital work a clear point of view.</p></div><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">github.com/26diyasubedi <Arrow /></a></article></div>
         </section>
 
-        <section className="lab-section section-wrap" data-reveal><div className="section-heading"><div><SectionLabel number="09">THE LAB</SectionLabel><h2>Not everything becomes a product.</h2></div><p>Some ideas exist simply because we wanted to know whether we could build them.</p></div><div className="lab-grid">{labs.map(([label, text, status]) => <article className="lab-card" key={label}><div><span>{label}</span><i /></div><h3>{text}</h3><p>{status}</p></article>)}</div></section>
+        <section className="lab-section section-wrap" id="lab" data-reveal><div className="section-heading"><div><SectionLabel number="09">THE LAB</SectionLabel><h2>Not everything becomes a product.</h2></div><p>Some ideas exist simply because we wanted to know whether we could build them.</p></div><div className="lab-grid">{labs.map(([label, text, status]) => <details className="lab-card" key={label}><summary><div><span>{label}</span><i /></div><h3>{text}</h3><p>{status}</p></summary><div className="lab-context"><span>WHY IT EXISTS</span><p>{status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}</p></div></details>)}</div></section>
 
         <section className="philosophy-section" data-reveal><div className="section-wrap"><SectionLabel number="10">THE LOOP</SectionLabel><h2>Build. Break.<br /><em>Learn. Build again.</em></h2><p>There is no straight line from an idea to something real. That is part of the work.</p></div></section>
 
-        <section className="contact-section section-wrap" id="contact" data-reveal><div><SectionLabel number="11">THE NEXT IDEA</SectionLabel><h2>Have an idea?</h2><p>We enjoy interesting problems, unusual ideas, and things worth building.</p></div><div className="contact-actions"><a className="button button-primary" href="https://github.com/arpan085" target="_blank" rel="noreferrer">GitHub <Arrow /></a><span className="button button-disabled" title="Add a real contact address in configuration">Email not configured</span></div></section>
+        <ServicesSection />
+        <section className="contact-section section-wrap" id="contact" data-reveal><div className="contact-intro"><SectionLabel number="11">THE NEXT IDEA</SectionLabel><h2>Have an idea?</h2><p>We enjoy interesting problems, unusual ideas, and things worth building.</p><div className="contact-actions"><a className="button button-outline" href="https://github.com/arpan085" target="_blank" rel="noreferrer">GitHub <Arrow /></a></div></div><ContactForm /></section>
+        <NewsletterIssues />
+        <ResourceGuide />
+        <NewsletterSignup />
       </main>
 
       <footer className="site-footer section-wrap"><div className="footer-brand"><img src={theme === 'light' ? '/assets/logo/kynvera-monochrome.svg' : '/assets/logo/kynvera-reverse.svg'} alt="KYNVERA" /><p>Ideas into digital reality.</p></div><div className="footer-links"><a href="#projects">Projects</a><a href="#about">About</a><a href="#github">GitHub</a><a href="#contact">Contact</a></div><div className="footer-meta"><span>© 2026 Kynvera</span><span>INDEPENDENT / COLLABORATIVE / CURIOUS</span></div></footer>
