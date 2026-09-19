@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react'
 
-/* Hero film follows the cursor: absolute pointer-X → video time.
-   When idle, the film drifts slowly on its own so touch users and
-   still cursors still see motion. Playback never runs free — the
-   cursor (or the drift) owns currentTime at all times. */
-const IDLE_RESUME_MS = 2500
+/* Hero film flows on its own and yields to the cursor: moving the pointer
+   grabs the film (pauses + eases to the pointer-X time); releasing it for
+   a beat hands playback back. Touch-drag grabs the same way. */
+const GRAB_MS = 1200
 const SEEK_EPSILON = 0.04
 
 export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>) {
@@ -19,25 +18,40 @@ export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>
     let ready = false
     let raf = 0
 
+    const resume = () => {
+      targetRef.current = video.currentTime || 0
+      smoothRef.current = targetRef.current
+      if (video.paused) {
+        const attempt = video.play()
+        if (attempt) attempt.catch(() => undefined)
+      }
+    }
+
     const tick = () => {
       if (ready && !document.hidden && video.duration) {
-        if (performance.now() - lastMoveRef.current > IDLE_RESUME_MS) {
-          targetRef.current += video.duration / 1200
-          if (targetRef.current >= video.duration) {
-            targetRef.current = 0
-            smoothRef.current = 0
+        if (performance.now() - lastMoveRef.current > GRAB_MS) {
+          // Hands off: flow freely and track live time so the next grab
+          // starts exactly where the film is.
+          resume()
+        } else {
+          // Grabbed: hold still and ease toward the pointer's frame.
+          if (!video.paused) {
+            try {
+              video.pause()
+            } catch {
+              /* already paused */
+            }
           }
-        }
-        // Critically-damped follow: ease the displayed time toward the
-        // target so seeks stay small, sparse, and decoder-friendly.
-        smoothRef.current += (targetRef.current - smoothRef.current) * 0.14
-        if (Math.abs(smoothRef.current - targetRef.current) < SEEK_EPSILON) {
-          smoothRef.current = targetRef.current
-        } else if (Math.abs(video.currentTime - smoothRef.current) > SEEK_EPSILON) {
-          try {
-            video.currentTime = smoothRef.current
-          } catch {
-            /* stream still buffering — retried on the next frame */
+          smoothRef.current += (targetRef.current - smoothRef.current) * 0.16
+          if (Math.abs(smoothRef.current - targetRef.current) < SEEK_EPSILON) {
+            smoothRef.current = targetRef.current
+          }
+          if (Math.abs(video.currentTime - smoothRef.current) > SEEK_EPSILON) {
+            try {
+              video.currentTime = smoothRef.current
+            } catch {
+              /* stream still buffering — retried on the next frame */
+            }
           }
         }
       }
@@ -47,14 +61,11 @@ export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>
     const markReady = () => {
       if (ready) return
       ready = true
-      try {
-        video.pause()
-      } catch {
-        /* already paused */
-      }
       targetRef.current = video.currentTime || 0
       smoothRef.current = targetRef.current
-      lastMoveRef.current = performance.now()
+      lastMoveRef.current = 0
+      const attempt = video.play()
+      if (attempt) attempt.catch(() => undefined)
       raf = requestAnimationFrame(tick)
     }
     if (video.readyState >= 1) markReady()
