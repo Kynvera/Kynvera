@@ -86,7 +86,7 @@ body::before {
 .site-video-overlay::before,
 .site-video-overlay::after {
   position: absolute; content: ''; border-radius: 999px;
-  filter: blur(60px); mix-blend-mode: screen; opacity: 0.28;
+  filter: blur(38px); opacity: 0.24; will-change: transform;
   animation: signal-drift 18s ease-in-out infinite alternate;
 }
 .site-video-overlay::before {
@@ -103,6 +103,9 @@ body::before {
   to { transform: translate3d(12%, 10%, 0) scale(1.08); }
 }
 
+/* Hero film owns a compositor layer so scrub seeks never force layout. */
+.hero-film { transform: translateZ(0); background: #000; }
+
 /* ============================================================
    Page body — single warm-ink world
    ============================================================ */
@@ -118,6 +121,12 @@ body::before {
 }
 .site-content > * { position: relative; z-index: 1; }
 .site-content section { border-top: 1px solid var(--line); }
+/* Skip offscreen rendering work — the browser only paints sections near
+   the viewport. Intrinsic size keeps the scrollbar stable pre-paint. */
+.site-content section {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 900px;
+}
 .site-content section:first-child { border-top: 0; }
 
 /* Quietly harmonize tailwind neutrals inside content */

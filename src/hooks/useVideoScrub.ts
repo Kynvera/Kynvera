@@ -9,6 +9,7 @@ const SEEK_EPSILON = 0.04
 
 export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>) {
   const targetRef = useRef(0)
+  const smoothRef = useRef(0)
   const lastMoveRef = useRef(0)
 
   useEffect(() => {
@@ -22,11 +23,19 @@ export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>
       if (ready && !document.hidden && video.duration) {
         if (performance.now() - lastMoveRef.current > IDLE_RESUME_MS) {
           targetRef.current += video.duration / 1200
-          if (targetRef.current >= video.duration) targetRef.current = 0
+          if (targetRef.current >= video.duration) {
+            targetRef.current = 0
+            smoothRef.current = 0
+          }
         }
-        if (Math.abs(video.currentTime - targetRef.current) > SEEK_EPSILON) {
+        // Critically-damped follow: ease the displayed time toward the
+        // target so seeks stay small, sparse, and decoder-friendly.
+        smoothRef.current += (targetRef.current - smoothRef.current) * 0.14
+        if (Math.abs(smoothRef.current - targetRef.current) < SEEK_EPSILON) {
+          smoothRef.current = targetRef.current
+        } else if (Math.abs(video.currentTime - smoothRef.current) > SEEK_EPSILON) {
           try {
-            video.currentTime = targetRef.current
+            video.currentTime = smoothRef.current
           } catch {
             /* stream still buffering — retried on the next frame */
           }
@@ -44,6 +53,7 @@ export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>
         /* already paused */
       }
       targetRef.current = video.currentTime || 0
+      smoothRef.current = targetRef.current
       lastMoveRef.current = performance.now()
       raf = requestAnimationFrame(tick)
     }

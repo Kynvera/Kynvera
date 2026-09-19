@@ -199,7 +199,7 @@ const projectImages: Record<string, string> = {
 
 function ProjectVisual({ visual }: { visual: string }) {
   const image = projectImages[visual]
-  return image ? <img className="project-logo-image" src={image} alt="" /> : <ProjectMark visual={visual} />
+  return image ? <img className="project-logo-image" src={image} alt="" loading="lazy" decoding="async" /> : <ProjectMark visual={visual} />
 }
 
 function ProjectDetailPage({ project, onBack }: { project: Project; onBack: () => void }) {
@@ -244,7 +244,7 @@ function PersonDetailPage({ person, onBack }: { person: TeamMember; onBack: () =
         <span className="project-page-status">FOUNDER / KYNVERA</span>
       </nav>
       <section className="person-page-hero">
-        <div className="person-page-photo"><img src={person.photo} alt={person.name} /></div>
+        <div className="person-page-photo"><img src={person.photo} alt={person.name} decoding="async" /></div>
         <div className="person-page-copy">
           <span>{person.role}</span>
           <h1>{person.name}</h1>
@@ -267,9 +267,10 @@ function App() {
   const [githubState, setGithubState] = useState<'loading' | 'ready' | 'fallback'>('loading')
   const [pillsVisible, setPillsVisible] = useState(false)
   const [emailCopied, setEmailCopied] = useState(false)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const [showTop, setShowTop] = useState(false)
   const [detailHash, setDetailHash] = useState(() => window.location.hash)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const scrollMeterRef = useRef<HTMLSpanElement>(null)
 
   useVideoScrub(videoRef)
 
@@ -286,14 +287,21 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const updateScrollProgress = () => {
-      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
-      setScrollProgress(scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0)
+    let ticking = false
+    const updateScrollMeter = () => {
+      ticking = false
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      const ratio = max > 0 ? Math.min(window.scrollY / max, 1) : 0
+      if (scrollMeterRef.current) scrollMeterRef.current.style.transform = `scaleX(${ratio})`
+      setShowTop(ratio > 0.12)
     }
-    updateScrollProgress()
-    window.addEventListener('scroll', updateScrollProgress, { passive: true })
-    window.addEventListener('resize', updateScrollProgress)
-    return () => { window.removeEventListener('scroll', updateScrollProgress); window.removeEventListener('resize', updateScrollProgress) }
+    const requestMeter = () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(updateScrollMeter) }
+    }
+    updateScrollMeter()
+    window.addEventListener('scroll', requestMeter, { passive: true })
+    window.addEventListener('resize', requestMeter)
+    return () => { window.removeEventListener('scroll', requestMeter); window.removeEventListener('resize', requestMeter) }
   }, [])
 
   useEffect(() => {
@@ -365,7 +373,7 @@ function App() {
       {/* ── Background film: plays on load, scrubs with the pointer ── */}
       <video
         ref={videoRef}
-        className="fixed inset-0 z-0 w-full h-full object-cover"
+        className="hero-film fixed inset-0 z-0 w-full h-full object-cover"
         style={{ objectPosition: '70% center' }}
         muted
         loop
@@ -644,7 +652,7 @@ function App() {
               {teamMembers.map((member, index) => (
                 <article className="team-card" key={member.name} style={{ '--reveal-delay': `${index * 90}ms` } as CSSProperties} data-reveal>
                   <div className={`team-portrait portrait-${index + 1}`}>
-                    <img src={member.photo} alt={member.name} />
+                    <img src={member.photo} alt={member.name} loading="lazy" decoding="async" />
                     <small>FOUNDER / 0{index + 1}</small>
                   </div>
                   <div className="team-copy">
@@ -724,8 +732,8 @@ function App() {
         </footer>
       </div>
 
-      <div className="scroll-meter" aria-hidden="true"><span style={{ transform: `scaleX(${Math.min(scrollProgress, 100) / 100})` }} /></div>
-      <button className={`back-to-top ${scrollProgress > 12 ? 'is-visible' : ''}`} type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑ <span>Top</span></button>
+      <div className="scroll-meter" aria-hidden="true"><span ref={scrollMeterRef} /></div>
+      <button className={`back-to-top ${showTop ? 'is-visible' : ''}`} type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑ <span>Top</span></button>
     </div>
   )
 }
