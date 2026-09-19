@@ -17,7 +17,9 @@ export default function NewsletterSignup() {
     const endpoint = import.meta.env.VITE_NEWSLETTER_ENDPOINT
     const publication = import.meta.env.VITE_SUBSTACK_URL
     if (!endpoint && !publication) {
-      setStatus('error')
+      window.location.href = `mailto:hello@kynvera.com?subject=${encodeURIComponent('Kynvera updates')}&body=${encodeURIComponent(`Please add ${email.trim()} to Kynvera updates.`)}`
+      setStatus('success')
+      trackEvent('newsletter_signup')
       return
     }
 
@@ -58,7 +60,7 @@ export default function NewsletterSignup() {
           <button type="submit" disabled={!isValid || status === 'sending'} aria-label="Subscribe to newsletter">{status === 'sending' ? '...' : '↗'}</button>
         </label>
         <label className="newsletter-consent"><input type="checkbox" checked={consent} onChange={(event) => { setConsent(event.target.checked); setStatus('idle') }} /> <span>I agree to receive occasional Kynvera updates.</span></label>
-        <p className="newsletter-status" role="status" aria-live="polite">{status === 'success' && (import.meta.env.VITE_NEWSLETTER_ENDPOINT ? 'Thanks. Check your inbox to confirm.' : 'Continue in the new tab to finish signup.')}{status === 'error' && (import.meta.env.VITE_NEWSLETTER_ENDPOINT || import.meta.env.VITE_SUBSTACK_URL ? 'Signup failed. Please try again.' : 'Newsletter signup is not configured yet.')}</p>
+        <p className="newsletter-status" role="status" aria-live="polite">{status === 'success' && (import.meta.env.VITE_NEWSLETTER_ENDPOINT ? 'Thanks. Check your inbox to confirm.' : import.meta.env.VITE_SUBSTACK_URL ? 'Continue in the new tab to finish signup.' : 'Your email app is opening with the request ready to send.')}{status === 'error' && 'Signup failed. Please try again.'}</p>
       </form>
     </div>
   )

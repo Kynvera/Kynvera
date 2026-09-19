@@ -1,4 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useTypewriter } from './hooks/useTypewriter'
+import { useVideoScrub } from './hooks/useVideoScrub'
 import ContactForm from './components/ContactForm'
 import NewsletterSignup from './components/NewsletterSignup'
 import ServicesSection from './components/ServicesSection'
@@ -6,10 +8,11 @@ import Search from './components/Search'
 import CaseStudiesSection from './components/CaseStudiesSection'
 import BlogSection, { articles } from './components/BlogSection'
 import ProcessSection, { process } from './components/ProcessSection'
-import NewsletterIssues from './components/NewsletterIssues'
-import ResourceGuide from './components/ResourceGuide'
-import RelatedProjects from './components/RelatedProjects'
 import { loadAnalytics, trackEvent } from './lib/analytics'
+
+/* ============================================================
+   DATA
+   ============================================================ */
 
 type Project = {
   index: string
@@ -23,6 +26,7 @@ type Project = {
   source?: string
   demo?: string
   featured?: boolean
+  visual: string
 }
 
 type GithubRepo = {
@@ -36,6 +40,18 @@ type GithubRepo = {
   updated_at: string
 }
 
+type TeamMember = {
+  name: string
+  slug: string
+  initials: string
+  photo: string
+  role: string
+  focus: string
+  summary: string
+  skills: string[]
+  link?: { label: string; href: string }
+}
+
 const projects: Project[] = [
   {
     index: '001',
@@ -47,6 +63,8 @@ const projects: Project[] = [
     solution: 'A structured web platform that keeps service information, requests, and backend logic in one place.',
     status: 'BUILDING',
     featured: true,
+    demo: 'https://cheapflixnepal.live/',
+    visual: 'cheapflix',
   },
   {
     index: '002',
@@ -58,6 +76,8 @@ const projects: Project[] = [
     solution: 'A data-oriented API surface designed to make a complex hierarchy easier to work with.',
     status: 'EXPERIMENTAL',
     featured: true,
+    demo: 'https://nepalinfo.netlify.app/',
+    visual: 'nepal-info',
   },
   {
     index: '003',
@@ -69,15 +89,37 @@ const projects: Project[] = [
     solution: 'A calm publishing experience centered on reading, presentation, and the personality of the work.',
     status: 'IN DEVELOPMENT',
     featured: true,
+    demo: 'https://diyasubedi.com.np/',
+    visual: 'poetry',
+  },
+  {
+    index: '004', name: 'How Aeroplane Works', category: 'WEB / EDUCATION', description: 'An interactive explainer that turns a complex machine into an approachable learning experience.', technologies: ['Interactive UI', 'Education', 'Animation'], problem: 'Technical ideas are easier to understand when people can explore them at their own pace.', solution: 'An approachable visual experience that breaks the fundamentals of flight into clear moments.', status: 'LIVE', demo: 'https://aeroplane-blond.vercel.app/', visual: 'aeroplane',
+  },
+  {
+    index: '005', name: 'Private Couple Gallery', category: 'PRIVATE / FULL STACK', description: 'A privacy-first shared personal archive for two authorized users and their memories.', technologies: ['React', 'FastAPI', 'PostgreSQL', 'Private storage'], problem: 'Personal memories need the care of a private product, not public links or frontend-only protection.', solution: 'An authenticated archive with server-side authorization, private media delivery, albums, stories, search, and recovery controls.', status: 'PRIVATE', source: 'https://github.com/arpan085/PRIVATE-GALLERY', visual: 'gallery',
+  },
+  {
+    index: '006', name: 'Kynvera', category: 'WEB / STUDIO', description: 'The evolving home for Kynvera’s projects, practice, and public experiments.', technologies: ['React', 'TypeScript', 'Vite', 'Design system'], problem: 'A studio needs a living index for work in progress as much as finished work.', solution: 'A project-led digital studio site designed to evolve alongside the work itself.', status: 'LIVE', demo: 'https://kynvera.vercel.app/', visual: 'kynvera',
+  },
+  {
+    index: '007', name: 'Ironman Gesture Vision Suite', category: 'PYTHON / COMPUTER VISION', description: 'A modular gesture-controlled computer-vision suite built for demos, reels, and playful utility.', technologies: ['Python', 'OpenCV', 'MediaPipe', 'Tkinter'], problem: 'Hand-tracking demos often stop at one feature instead of becoming a flexible, testable system.', solution: 'Twenty gesture-controlled modes—drawing, games, controls, filters, effects, recording, and HUD utilities—inside one modular application.', status: 'IN DEVELOPMENT', source: 'https://github.com/arpan085/ironman', visual: 'ironman',
+  },
+  {
+    index: '008', name: 'NEPSE AI Analyzer', category: 'AI / FINANCE', description: 'A quantitative, machine-learning, and multi-AI research platform for Nepal Stock Exchange intelligence.', technologies: ['Python', 'Machine learning', 'Quantitative analysis', 'AI'], problem: 'Market research needs a more structured way to combine data, analysis, and practical decision support.', solution: 'An evolving intelligence platform designed specifically around NEPSE research workflows.', status: 'IN DEVELOPMENT', source: 'https://github.com/arpan085/NEPSE', visual: 'nepse',
   },
 ]
 
 const capabilities = [
-  { number: '01', title: 'Software', text: 'Practical software designed to solve real problems.', tags: ['Python', 'Node.js', 'APIs', 'Databases', 'Automation'] },
-  { number: '02', title: 'AI & ML', text: 'Experiments and applications exploring intelligent software.', tags: ['Models', 'Data', 'Evaluation', 'Research'] },
-  { number: '03', title: 'Web', text: 'Fast, modern websites and digital experiences.', tags: ['React', 'Interfaces', 'Systems', 'Interaction'] },
-  { number: '04', title: 'Creative Technology', text: 'Technology combined with storytelling, writing, design, and digital publishing.', tags: ['Writing', 'Publishing', 'Visuals', 'Ideas'] },
-  { number: '05', title: 'Open Source', text: 'Tools and projects shared with the wider developer community.', tags: ['Public', 'Useful', 'Learning', 'Release'] },
+  { number: '01', title: 'Websites', text: 'Fast, expressive websites with a clear point of view and a useful job to do.', tags: ['React', 'UI / UX', 'SEO', 'Performance'] },
+  { number: '02', title: 'Applications', text: 'Product interfaces and web applications built around the flow people actually need.', tags: ['Product', 'Frontend', 'Systems', 'Interaction'] },
+  { number: '03', title: 'Software', text: 'Dependable software for real operational problems, from the API to the database.', tags: ['Python', 'Node.js', 'APIs', 'Databases'] },
+  { number: '04', title: 'Creative Technology', text: 'Digital experiences where code, storytelling, visual design, and curiosity meet.', tags: ['Writing', 'Visuals', 'Publishing', 'Experiments'] },
+  { number: '05', title: 'Open Source', text: 'Useful tools, learnings, and experiments shared openly with the wider community.', tags: ['Public', 'Useful', 'Learning', 'Release'] },
+]
+
+const teamMembers: TeamMember[] = [
+  { name: 'Arpan Baral', slug: 'arpan', initials: 'AB', photo: '/assets/team/arpan.png', role: 'Backend Developer · Project Manager', focus: 'The foundation', summary: 'Arpan shapes the systems behind the experience—from APIs and databases to delivery plans that keep a project moving.', skills: ['Backend systems', 'APIs', 'Databases', 'SEO', 'Project management'], link: { label: 'arpan-baral.com.np', href: 'https://arpan-baral.com.np' } },
+  { name: 'Diya Subedi', slug: 'diya', initials: 'DS', photo: '/assets/team/diya.png', role: 'Frontend Developer · Designer · Writer', focus: 'The experience', summary: 'Diya brings interfaces, visual identity, writing, and search thinking together so a product feels considered from its first interaction.', skills: ['Frontend development', 'Website design', 'Creative writing', 'SEO', 'Visual storytelling'], link: { label: 'diyasubedi.com.np', href: 'https://diyasubedi.com.np' } },
 ]
 
 const labs = [
@@ -94,30 +136,177 @@ const searchItems = [
   ...articles.map((article) => ({ id: `article-${article.id}`, name: article.title, description: article.summary, type: 'NOTE', href: '#notes', tags: article.category })),
 ]
 
-function SectionLabel({ children, number }: { children: string; number?: string }) {
-  return <div className="section-label"><span>{number ?? '//'}</span>{children}</div>
-}
+const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260826_041744_63efcd78-bf7d-4039-99e2-2461e8a61903.mp4'
+const PROJECT_VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_204221_5339e40b-e73d-4ab0-9c65-79c18c66fd50.mp4'
+
+/* ============================================================
+   APP
+   ============================================================ */
 
 function Arrow() {
-  return <span className="arrow" aria-hidden="true">↗</span>
+  return <span className="inline-block text-[16px] leading-none transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true">↗</span>
+}
+
+function LabSection() {
+  return <section className="py-16 sm:py-24" id="lab">
+    <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
+        <div><span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3"><span className="w-5 h-[1.5px] bg-neutral-400 block" />THE LAB</span><h2 className="text-[clamp(28px,4vw,44px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Not everything becomes a product.</h2></div>
+        <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Some ideas exist simply because we wanted to know whether we could build them.</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
+        {labs.map(([label, text, status]) => <details className="bg-neutral-950 p-6 min-h-[180px] hover:bg-neutral-900 transition-colors group" key={label}><summary className="list-none cursor-pointer outline-none [&::-webkit-details-marker]:hidden"><div className="flex justify-between text-[10px] font-mono text-neutral-500 tracking-wider"><span>{label}</span><span className="w-1.5 h-1.5 bg-neutral-600 rounded-full group-open:bg-white transition-colors" /></div><h3 className="text-[17px] tracking-tight mt-10 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>{text}</h3><p className="text-[11px] font-mono text-neutral-500 tracking-wider">{status}</p></summary><div className="border-t border-neutral-800 pt-4 mt-4"><span className="text-[10px] font-mono text-neutral-500 tracking-wider">WHY IT EXISTS</span><p className="text-neutral-500 text-[14px] leading-relaxed mt-2">{status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}</p></div></details>)}
+      </div>
+    </div>
+  </section>
+}
+
+function CapabilityIcon({ name }: { name: string }) {
+  const paths: Record<string, ReactNode> = {
+    Websites: <><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M3 8h18M8 13l-2 2 2 2m8-4 2 2-2 2" /></>,
+    Applications: <><rect x="5" y="2" width="14" height="20" rx="2" /><path d="M9 6h6M9 18h6" /></>,
+    Software: <><path d="M12 3 4 7.5v9L12 21l8-4.5v-9L12 3Z" /><path d="m8.5 10 2 2-2 2m5-4-2 2 2 2" /></>,
+    'Creative Technology': <><path d="M12 3v18M3 12h18" /><circle cx="12" cy="12" r="4" /><path d="m5.6 5.6 12.8 12.8M18.4 5.6 5.6 18.4" /></>,
+    'Open Source': <><path d="M12 3a5 5 0 0 0-2 9.6V15H7v3h3v3h4v-3h3v-3h-3v-2.4A5 5 0 0 0 12 3Z" /><path d="M7 8H5a2 2 0 0 0-2 2v3h3" /></>,
+  }
+  return <svg className="capability-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{paths[name]}</svg>
+}
+
+function ProjectMark({ visual }: { visual: string }) {
+  const marks: Record<string, ReactNode> = {
+    cheapflix: <><path d="M4 6h16v12H4z" /><path d="M8 6v12M12 6v12M16 6v12" /></>,
+    'nepal-info': <><path d="M12 3 20 9v11H4V9l8-6Z" /><path d="M8 20v-6h8v6M9 10h.01M15 10h.01" /></>,
+    poetry: <><path d="M6 4h12v16H6z" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
+    aeroplane: <path d="M3 13.5 21 5l-6.5 8 4 4-2 2-5.5-3-4 3 .5-5.5L3 13.5Z" />,
+    gallery: <><rect x="4" y="5" width="16" height="14" rx="2" /><circle cx="9" cy="10" r="1.5" /><path d="m6 17 4.5-4 3 2 2.5-3 2 5" /></>,
+    kynvera: <path d="M3 11h7V4l11 8-11 8v-7H3z" />,
+    ironman: <><circle cx="12" cy="12" r="8" /><path d="m12 4 2.4 5.6L20 12l-5.6 2.4L12 20l-2.4-5.6L4 12l5.6-2.4L12 4Z" /></>,
+    nepse: <><path d="M4 19V5M4 19h16" /><path d="m6 16 4-5 3 2 5-7" /><path d="M15 6h3v3" /></>,
+  }
+  return <svg className="project-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{marks[visual]}</svg>
+}
+
+const projectImages: Record<string, string> = {
+  cheapflix: '/assets/projects/cheapflix.png',
+  'nepal-info': '/assets/projects/nepal-info.png',
+  poetry: '/assets/projects/poetry.png',
+  aeroplane: '/assets/projects/aeroplane.png',
+  kynvera: '/assets/projects/kynvera.png',
+  ironman: '/assets/projects/ironman.jpg',
+  nepse: '/assets/projects/nepse.jpg',
+}
+
+function ProjectVisual({ visual }: { visual: string }) {
+  const image = projectImages[visual]
+  return image ? <img className="project-logo-image" src={image} alt="" /> : <ProjectMark visual={visual} />
+}
+
+function ProjectDetailPage({ project, onBack }: { project: Project; onBack: () => void }) {
+  return (
+    <main className="project-page min-h-screen bg-black text-white">
+      <video className="project-page-video" autoPlay muted loop playsInline>
+        <source src={PROJECT_VIDEO_URL} type="video/mp4" />
+      </video>
+      <div className="project-page-overlay" aria-hidden="true" />
+      <nav className="project-page-nav">
+        <button type="button" onClick={onBack} className="project-back"><span aria-hidden="true">←</span> All projects</button>
+        <a href="#main" onClick={onBack} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
+        <span className="project-page-status">{project.status}</span>
+      </nav>
+      <section className="project-page-hero">
+        <div className="project-page-intro">
+          <span>{project.index} / {project.category}</span>
+          <h1>{project.name}</h1>
+          <p>{project.description}</p>
+          <div className="project-page-actions">
+            {project.demo && <a href={project.demo} target="_blank" rel="noreferrer">Visit live site <Arrow /></a>}
+            {project.source && <a href={project.source} target="_blank" rel="noreferrer">View source <Arrow /></a>}
+          </div>
+        </div>
+        <div className={`project-page-signal ${project.visual} ${projectImages[project.visual] ? 'with-image' : ''}`} aria-hidden="true"><span>{project.index}</span><ProjectVisual visual={project.visual} /><b>{project.category.split(' / ')[0]}</b></div>
+      </section>
+      <section className="project-page-details">
+        <article><span>THE QUESTION</span><p>{project.problem}</p></article>
+        <article><span>THE DIRECTION</span><p>{project.solution}</p></article>
+        <aside><span>BUILT WITH</span><div>{project.technologies.map((technology) => <b key={technology}>{technology}</b>)}</div></aside>
+      </section>
+    </main>
+  )
+}
+
+function PersonDetailPage({ person, onBack }: { person: TeamMember; onBack: () => void }) {
+  return (
+    <main className={`person-page person-${person.slug} min-h-screen text-white`}>
+      <nav className="person-page-nav">
+        <button type="button" onClick={onBack} className="project-back"><span aria-hidden="true">←</span> The people</button>
+        <a href="#main" onClick={onBack} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
+        <span className="project-page-status">FOUNDER / KYNVERA</span>
+      </nav>
+      <section className="person-page-hero">
+        <div className="person-page-photo"><img src={person.photo} alt={person.name} /></div>
+        <div className="person-page-copy">
+          <span>{person.role}</span>
+          <h1>{person.name}</h1>
+          <p>{person.summary}</p>
+          <a href={person.link?.href} target="_blank" rel="noreferrer">Visit portfolio <Arrow /></a>
+        </div>
+      </section>
+      <section className="person-page-detail">
+        <article><span>IN THE STUDIO</span><h2>{person.focus}</h2><p>Working from the belief that an idea becomes stronger when its structure and its story are designed together.</p></article>
+        <article><span>FOCUS AREAS</span><div>{person.skills.map((skill) => <b key={skill}>{skill}</b>)}</div></article>
+      </section>
+    </main>
+  )
 }
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState<'dark' | 'light'>('light')
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const [selectedFounder, setSelectedFounder] = useState<TeamMember | null>(null)
   const [projectFilter, setProjectFilter] = useState('ALL')
-  const [comparison, setComparison] = useState<string[]>([])
-  const [scrollProgress, setScrollProgress] = useState(0)
   const [repos, setRepos] = useState<GithubRepo[]>([])
   const [githubState, setGithubState] = useState<'loading' | 'ready' | 'fallback'>('loading')
+  const [pillsVisible, setPillsVisible] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [detailHash, setDetailHash] = useState(() => window.location.hash)
   const openerRef = useRef<HTMLElement | null>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
+  useVideoScrub(videoRef)
+
+  const { displayed, done } = useTypewriter(
+    'Ideas into digital reality.',
+    52,
+    600,
+  )
+
+  // Show pills after 400ms
+  useEffect(() => {
+    const timer = setTimeout(() => setPillsVisible(true), 400)
+    return () => clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
+    const updateScrollProgress = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight
+      setScrollProgress(scrollableHeight > 0 ? (window.scrollY / scrollableHeight) * 100 : 0)
+    }
+    updateScrollProgress()
+    window.addEventListener('scroll', updateScrollProgress, { passive: true })
+    window.addEventListener('resize', updateScrollProgress)
+    return () => { window.removeEventListener('scroll', updateScrollProgress); window.removeEventListener('resize', updateScrollProgress) }
+  }, [])
+
+  useEffect(() => {
+    const syncProjectPage = () => setDetailHash(window.location.hash)
+    window.addEventListener('hashchange', syncProjectPage)
+    return () => window.removeEventListener('hashchange', syncProjectPage)
+  }, [])
+
+  // Analytics + scroll reveals + GitHub fetch
   useEffect(() => {
     const analyticsSiteId = import.meta.env.VITE_FATHOM_SITE_ID
     const removeAnalytics = analyticsSiteId ? loadAnalytics(analyticsSiteId) : () => undefined
-    const savedTheme = window.localStorage.getItem('kynvera-theme') as 'dark' | 'light' | null
-    if (savedTheme) setTheme(savedTheme)
 
     const revealElements = document.querySelectorAll<HTMLElement>('[data-reveal]')
     const observer = new IntersectionObserver((entries) => {
@@ -144,21 +333,7 @@ function App() {
     return () => { observer.disconnect(); controller.abort(); document.removeEventListener('click', trackGithubClick); removeAnalytics() }
   }, [])
 
-  useEffect(() => {
-    const updateProgress = () => {
-      const scrollable = document.documentElement.scrollHeight - window.innerHeight
-      setScrollProgress(scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0)
-    }
-    updateProgress()
-    window.addEventListener('scroll', updateProgress, { passive: true })
-    return () => window.removeEventListener('scroll', updateProgress)
-  }, [])
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    window.localStorage.setItem('kynvera-theme', theme)
-  }, [theme])
-
+  // Project modal management
   useEffect(() => {
     document.body.style.overflow = selectedProject ? 'hidden' : ''
     if (selectedProject) window.requestAnimationFrame(() => document.querySelector<HTMLElement>('.project-modal button, .project-modal a[href]')?.focus())
@@ -181,136 +356,473 @@ function App() {
   }, [selectedProject])
 
   const closeMenu = () => setMenuOpen(false)
-  const logo = theme === 'light' ? '/assets/logo/kynvera-monochrome.svg' : '/assets/logo/kynvera-primary.svg'
   const projectFilters = ['ALL', ...Array.from(new Set(projects.map((project) => project.category.split(' / ')[0])))]
   const filteredProjects = projectFilter === 'ALL' ? projects : projects.filter((project) => project.category.startsWith(projectFilter))
-  const toggleComparison = (projectIndex: string) => setComparison((current) => current.includes(projectIndex) ? current.filter((index) => index !== projectIndex) : current.length < 2 ? [...current, projectIndex] : current)
-  const comparedProjects = projects.filter((project) => comparison.includes(project.index))
+
+  const copyEmail = async () => {
+    try { await navigator.clipboard.writeText('hello@kynvera.com') } catch { /* silent */ }
+  }
+
+  const openProjectPage = (project: Project) => {
+    trackEvent('project_clicked')
+    window.location.hash = `project-${project.index}`
+  }
+
+  const openPersonPage = (person: TeamMember) => {
+    window.location.hash = `person-${person.slug}`
+  }
+
+  const selectedProjectPage = projects.find((project) => detailHash === `#project-${project.index}`)
+  const selectedPersonPage = teamMembers.find((person) => detailHash === `#person-${person.slug}`)
+  if (selectedProjectPage) return <ProjectDetailPage project={selectedProjectPage} onBack={() => { window.location.hash = 'projects' }} />
+  if (selectedPersonPage) return <PersonDetailPage person={selectedPersonPage} onBack={() => { window.location.hash = 'about' }} />
 
   return (
-    <div className="site-shell">
-      <a className="skip-link" href="#top">Skip to main content</a>
-      <div className="cursor-dot" aria-hidden="true" />
-      <div className="grid-field" aria-hidden="true" />
-      <header className={`site-header ${menuOpen ? 'menu-open' : ''}`}>
-        <span className="scroll-progress" style={{ '--scroll-progress': `${scrollProgress}%` } as CSSProperties} aria-hidden="true" />
-        <a className="brand-lockup" href="#top" onClick={closeMenu} aria-label="Kynvera home">
-          <img src={logo} alt="KYNVERA" />
-        </a>
-        <nav className="desktop-nav" aria-label="Primary navigation">
-          <a href="#projects">Projects</a>
-          <a href="#services">Services</a>
-          <a href="#notes">Notes</a>
-          <a href="#build">What we build</a>
-          <a href="#about">About</a>
-          <a href="#github">GitHub</a>
-        </nav>
-        <div className="header-actions">
-          <Search items={searchItems} />
-          <button className="theme-toggle" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
-            <span className="theme-orb" />
-            <span>{theme === 'dark' ? 'LIGHT' : 'DARK'}</span>
-          </button>
-          <a className="header-cta" href="#projects">Explore projects <Arrow /></a>
-          <button className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}>
-            <span /><span />
-          </button>
+    <div className="min-h-screen relative bg-black text-white">
+      <a className="fixed left-4 top-3 z-50 px-4 py-2 bg-white text-black text-sm rounded-lg -translate-y-[200%] focus:translate-y-0 transition-transform" href="#main">Skip to main content</a>
+
+      {/* ── Background Video ── */}
+      <video
+        ref={videoRef}
+        className="fixed inset-0 z-0 w-full h-full object-cover"
+        style={{ objectPosition: '70% center' }}
+        muted
+        playsInline
+        preload="auto"
+      >
+        <source src={VIDEO_URL} type="video/mp4" />
+      </video>
+
+      {/* Animated atmosphere over the video */}
+      <div className="site-video-overlay fixed inset-0 z-[1] pointer-events-none" aria-hidden="true" />
+
+      {/* ── Navbar ── */}
+      <header className="studio-nav fixed top-4 left-4 right-4 sm:left-8 sm:right-8 z-10 flex items-center justify-between px-4 sm:px-5 py-3">
+        <div className="flex items-center gap-3">
+          <a href="#main" onClick={closeMenu} aria-label="Kynvera home" className="flex items-center gap-3">
+            <img src="/assets/logo/kynvera-symbol.svg" alt="" className="w-6 h-6 studio-mark" />
+            <span className="text-[18px] sm:text-[20px] tracking-tight text-white" style={{ fontFamily: 'var(--font-heading)' }}>Kynvera</span>
+          </a>
         </div>
-        <nav className="mobile-nav" aria-label="Mobile navigation">
-          <a href="#projects" onClick={closeMenu}>Projects <Arrow /></a>
-          <a href="#services" onClick={closeMenu}>Services <Arrow /></a>
-          <a href="#notes" onClick={closeMenu}>Notes <Arrow /></a>
-          <a href="#build" onClick={closeMenu}>What we build <Arrow /></a>
-          <a href="#about" onClick={closeMenu}>About <Arrow /></a>
-          <a href="#github" onClick={closeMenu}>GitHub <Arrow /></a>
+
+        {/* Desktop nav */}
+        <nav className="hidden md:flex items-center gap-1 text-[13px] text-neutral-300" aria-label="Primary navigation">
+          <a href="#projects" className="studio-nav-link">Projects</a>
+          <a href="#build" className="studio-nav-link">Studio</a>
+          <a href="#about" className="studio-nav-link">People</a>
+          <a href="#services" className="studio-nav-link">Services</a>
+          <a href="#notes" className="studio-nav-link">Notes</a>
         </nav>
+
+        {/* Desktop CTA + Search */}
+        <div className="hidden md:flex items-center gap-3">
+          <Search items={searchItems} />
+          <a href="#contact" className="studio-contact">Start a project <Arrow /></a>
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="flex md:hidden flex-col gap-[5px] w-7 p-0"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-expanded={menuOpen}
+          aria-label={menuOpen ? 'Close navigation' : 'Open navigation'}
+        >
+          <span className="block w-6 h-[2px] bg-white transition-transform duration-300" style={menuOpen ? { transform: 'rotate(45deg) translate(3px, 4px)' } : {}} />
+          <span className="block w-6 h-[2px] bg-white transition-opacity duration-300" style={menuOpen ? { opacity: 0 } : {}} />
+          <span className="block w-6 h-[2px] bg-white transition-transform duration-300" style={menuOpen ? { transform: 'rotate(-45deg) translate(3px, -4px)' } : {}} />
+        </button>
       </header>
 
-      <main id="top">
-        <section className="hero section-wrap">
-          <div className="hero-copy" data-reveal>
-            <div className="micro-row"><span>SYSTEM / KYNVERA</span><span>01 / INTRO</span></div>
-            <p className="hero-kicker">INDEPENDENT TECHNOLOGY + CREATIVE STUDIO</p>
-            <h1>Ideas into <em>digital reality.</em></h1>
-            <p className="hero-description">Kynvera is an independent technology and creative studio building software, digital experiences, experiments, and open-source projects.</p>
-            <div className="hero-actions">
-              <a className="button button-primary" href="#projects">Explore projects <Arrow /></a>
-              <a className="button button-quiet" href="https://github.com/arpan085" target="_blank" rel="noreferrer">Visit GitHub <Arrow /></a>
+      {/* Mobile overlay */}
+      <div
+        className="fixed inset-0 z-9 bg-black/90 backdrop-blur-md flex flex-col justify-center px-8 gap-8 md:hidden transition-opacity duration-300"
+        style={{ opacity: menuOpen ? 1 : 0, pointerEvents: menuOpen ? 'auto' : 'none' }}
+      >
+        <a href="#projects" onClick={closeMenu} className="text-[32px] font-medium text-white hover:opacity-60 transition-opacity">Projects</a>
+        <a href="#build" onClick={closeMenu} className="text-[32px] font-medium text-white hover:opacity-60 transition-opacity">Studio</a>
+        <a href="#about" onClick={closeMenu} className="text-[32px] font-medium text-white hover:opacity-60 transition-opacity">People</a>
+        <a href="#notes" onClick={closeMenu} className="text-[32px] font-medium text-white hover:opacity-60 transition-opacity">Notes</a>
+        <a href="#services" onClick={closeMenu} className="text-[32px] font-medium text-white hover:opacity-60 transition-opacity">Services</a>
+        <a href="#contact" onClick={closeMenu} className="text-[32px] font-medium text-white underline underline-offset-2 hover:opacity-60 transition-opacity">Get in touch</a>
+        <div className="mt-4"><Search items={searchItems} /></div>
+      </div>
+
+      {/* ── Hero Section ── */}
+      <section className="relative z-[2] h-screen min-h-[680px] flex flex-col justify-end pb-12 md:justify-center md:pb-0 px-5 sm:px-8 md:px-10 overflow-hidden" id="main">
+        <div className="max-w-4xl relative z-10 hero-copy">
+          {/* Blurred intro label */}
+          <div className="hero-kicker pointer-events-none select-none mb-5 sm:mb-6">
+            <span className="hero-signal" />01 Studio <i>·</i> Kynvera
+          </div>
+
+          {/* Typewriter text */}
+          <h1 className="hero-title text-white mb-5 sm:mb-7">
+            {displayed}
+            {!done && <span className="inline-block w-[3px] h-[.78em] bg-[#43d1db] align-middle ml-[6px] cursor-blink" />}
+          </h1>
+          <p className="hero-description">Kynvera is an independent studio crafting software, digital experiences, and thoughtful experiments — one useful version at a time.</p>
+
+          {/* Action pill buttons */}
+          <div
+            className="flex flex-wrap gap-y-1 transition-all duration-[400ms] ease-out"
+            style={{ opacity: pillsVisible ? 1 : 0, transform: pillsVisible ? 'translateY(0)' : 'translateY(8px)' }}
+          >
+            <a href="#projects" className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200">
+              See our work
+            </a>
+            <a href="#build" className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200">
+              What we build
+            </a>
+            <a href="#contact" className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200">
+              Send a brief hello
+            </a>
+            <a href="#services" className="inline-flex items-center justify-center bg-white text-black border border-black/10 rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap hover:bg-black hover:text-white transition-colors duration-200">
+              See how we operate
+            </a>
+            <button
+              onClick={copyEmail}
+              className="inline-flex items-center justify-center bg-transparent text-white border border-white rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap gap-2 sm:gap-3 hover:bg-white hover:text-black transition-colors duration-200 cursor-pointer"
+            >
+              <span>Reach us: <span className="underline underline-offset-1">hello@kynvera.com</span></span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Content sections below hero ── */}
+      <div className="site-content relative z-[2]">
+
+        {/* ── Capabilities ── */}
+        <section className="py-24 sm:py-32 lg:py-40" id="build">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
+              <div>
+                <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                  <span className="w-5 h-[1.5px] bg-neutral-400 block" />STUDIO
+                </span>
+                <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>What we build</h2>
+              </div>
+              <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Different tools. One shared habit: make the next version more useful.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
+              {capabilities.map((item) => (
+                <div className="capability-card bg-neutral-950 p-6 min-h-[280px] flex flex-col hover:bg-neutral-900 transition-colors group" key={item.number} data-reveal>
+                  <div className="flex items-start justify-between"><span className="text-[11px] font-mono text-neutral-500 tracking-wider">{item.number}</span><CapabilityIcon name={item.title} /></div>
+                  <h3 className="text-[20px] mt-10 mb-3 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
+                  <p className="text-neutral-500 text-[14px] leading-relaxed flex-1">{item.text}</p>
+                  <div className="flex flex-wrap gap-1.5 mt-4">
+                    {item.tags.map((tag) => (
+                      <span key={tag} className="px-2.5 py-1 border border-neutral-800 rounded-md text-[11px] text-neutral-500 group-hover:border-neutral-700 transition-colors">{tag}</span>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="hero-system" aria-label="A system diagram showing ideas becoming software" data-reveal>
-            <div className="system-meta top-meta"><span>PROCESS / 004</span><span>STATUS / BUILDING</span></div>
-            <div className="system-orbit orbit-a" /><div className="system-orbit orbit-b" />
-            <div className="system-line line-a" /><div className="system-line line-b" /><div className="system-line line-c" />
-            <div className="system-node node-a"><span>01</span><b>IDEA</b></div>
-            <div className="system-node node-b"><span>02</span><b>BUILD</b></div>
-            <div className="system-node node-c"><span>03</span><b>TEST</b></div>
-            <div className="system-node node-d"><span>04</span><b>LAUNCH</b></div>
-            <div className="system-core"><img src="/assets/logo/kynvera-symbol.svg" alt="" /></div>
-            <div className="system-meta bottom-meta"><span>MODE / EXPERIMENTAL</span><span>LIVE / 2026</span></div>
+        </section>
+
+        {/* ── Projects ── */}
+        <section className="py-24 sm:py-32 lg:py-40" id="projects">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
+              <div>
+                <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                  <span className="w-5 h-[1.5px] bg-neutral-400 block" />PROJECTS
+                </span>
+                <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Things we've built</h2>
+              </div>
+              <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Eight products, experiments, and systems—built across software, design, data, and play.</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 mb-8" data-reveal>
+              {projectFilters.map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  className={`px-4 py-2 rounded-lg text-[13px] border transition-colors ${projectFilter === filter ? 'bg-white text-black border-white' : 'bg-transparent text-neutral-400 border-neutral-800 hover:border-neutral-600 hover:text-neutral-300'}`}
+                  onClick={() => setProjectFilter(filter)}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+
+            <div className="project-ledger" data-reveal>
+              {filteredProjects.map((project) => (
+                <article className="ledger-project" key={project.index}>
+                  <div className={`ledger-art ${project.visual} ${projectImages[project.visual] ? 'with-image' : ''}`} aria-hidden="true"><span>{project.index}</span><ProjectVisual visual={project.visual} /><i>{project.category.split(' / ')[0]}</i><b>{project.status}</b></div>
+                  <div className="ledger-copy">
+                    <div className="ledger-meta"><span>{project.category}</span><span>PROJECT / {project.index}</span></div>
+                    <h3>{project.name}</h3>
+                    <p>{project.description}</p>
+                    <div className="ledger-tags">{project.technologies.map((tech) => <span key={tech}>{tech}</span>)}</div>
+                    <div className="ledger-actions">
+                      <button type="button" onClick={() => openProjectPage(project)}>Project details <Arrow /></button>
+                      {project.demo && <a href={project.demo} target="_blank" rel="noreferrer">Visit live site <Arrow /></a>}
+                      {project.source && <a href={project.source} target="_blank" rel="noreferrer">View source <Arrow /></a>}
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
           </div>
-          <div className="hero-index">KYNVERA / 001 <span>SCROLL TO EXPLORE</span></div>
         </section>
-
-        <section className="manifesto section-wrap" data-reveal>
-          <SectionLabel number="02">THE STARTING POINT</SectionLabel>
-          <div className="manifesto-grid">
-            <h2>We build things<br /><em>that start as ideas.</em></h2>
-            <div className="manifesto-copy"><p>Some begin as problems we want to solve. Some begin as experiments. Some begin as creative ideas.</p><p>Kynvera exists to turn those ideas into things people can actually use.</p></div>
-          </div>
-        </section>
-
-        <section className="build-section section-wrap" id="build">
-          <div className="section-heading" data-reveal><div><SectionLabel number="03">THE WORK</SectionLabel><h2>What we build</h2></div><p>Different tools. One shared habit: make the next version more useful.</p></div>
-          <div className="capability-list">
-            {capabilities.map((item) => <article className="capability-card" key={item.number} data-reveal><div className="card-top"><span className="index">{item.number}</span><span className="status-dot" /></div><h3>{item.title}</h3><p>{item.text}</p><div className="tag-list">{item.tags.map((tag) => <span key={tag}>{tag}</span>)}</div><Arrow /></article>)}
-          </div>
-        </section>
-
-        <section className="projects-section section-wrap" id="projects">
-          <div className="section-heading" data-reveal><div><SectionLabel number="04">THE INDEX</SectionLabel><h2>Things we've built</h2></div><p>Real work, in different stages of becoming.</p></div>
-          <div className="project-tools" data-reveal><div className="project-filters" role="group" aria-label="Filter projects">{projectFilters.map((filter) => <button className={projectFilter === filter ? 'active' : ''} type="button" key={filter} onClick={() => setProjectFilter(filter)}>{filter}</button>)}</div><span className="project-tool-hint">Select up to two to compare</span></div>
-          <div className="project-grid">{filteredProjects.map((project) => <div className={`project-card-wrap ${comparison.includes(project.index) ? 'is-compared' : ''}`} key={project.index} data-reveal><button className={`project-card ${project.featured ? 'featured' : ''}`} onClick={(event) => { openerRef.current = event.currentTarget; trackEvent('project_clicked'); setSelectedProject(project) }}><div className="project-card-head"><span>{project.index} / {project.category}</span><span className="project-status">{project.status}</span></div><h3>{project.name}</h3><p>{project.description}</p><div className="tag-list">{project.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><span className="project-link">View project <Arrow /></span></button><button className="compare-toggle" type="button" onClick={() => toggleComparison(project.index)} aria-pressed={comparison.includes(project.index)}>{comparison.includes(project.index) ? 'Compared' : 'Compare'}</button></div>)}</div>
-          {comparedProjects.length > 0 && <div className="comparison-tray" data-reveal><div><span className="section-label"><span>COMPARE</span>SELECTED WORK</span><h3>{comparedProjects.length === 1 ? 'Choose one more project.' : 'Two directions, side by side.'}</h3></div><div className="comparison-items">{comparedProjects.map((project) => <div key={project.index}><span>{project.category}</span><strong>{project.name}</strong><small>{project.status} · {project.technologies.join(' · ')}</small></div>)}</div><button className="comparison-clear" type="button" onClick={() => setComparison([])}>Clear</button></div>}
-        </section>
-
-        <section className="related-project-section section-wrap" aria-label="Related projects"><RelatedProjects current={projects[0]} projects={projects} onSelect={(project) => setSelectedProject(projects.find((item) => item.index === project.index) ?? null)} /></section>
 
         <CaseStudiesSection />
-        <BlogSection />
+        {false && <BlogSection />}
 
-        <section className="github-section section-wrap" id="github">
-          <div className="github-heading" data-reveal><SectionLabel number="05">THE PUBLIC LAYER</SectionLabel><h2>Built in public.</h2><p>Many of our experiments live openly on GitHub. Follow the work, explore the code, and see what we're building next.</p><a className="button button-primary" href="https://github.com/arpan085" target="_blank" rel="noreferrer">Explore GitHub <Arrow /></a></div>
-          <div className="repo-panel" data-reveal><div className="repo-panel-top"><span>REPOSITORIES / LIVE DATA</span><span className="live-indicator"><i />{githubState === 'ready' ? 'LIVE' : githubState === 'loading' ? 'CONNECTING' : 'MEMBERS'}</span></div>{githubState === 'loading' ? <div className="repo-loading" aria-label="Loading repositories"><span /><span /><span /></div> : repos.length > 0 ? repos.map((repo) => <a className="repo-row" href={repo.html_url} target="_blank" rel="noreferrer" key={repo.id}><div><h3>{repo.name}</h3><p>{repo.description ?? 'A Kynvera repository.'}</p></div><div className="repo-stats"><span>{repo.language ?? 'CODE'}</span><span>★ {repo.stargazers_count}</span><span>⑂ {repo.forks_count}</span></div></a>) : <div className="repo-fallback"><p>Explore the people behind the work while the organization feed connects.</p><div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">arpan085 <Arrow /></a><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">26diyasubedi <Arrow /></a></div></div>}</div>
+        {/* ── GitHub ── */}
+        <section className="py-24 sm:py-32 lg:py-40" id="github">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <div data-reveal>
+              <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                <span className="w-5 h-[1.5px] bg-neutral-400 block" />OPEN SOURCE
+              </span>
+              <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight mb-5" style={{ fontFamily: 'var(--font-heading)' }}>Built in public.</h2>
+              <p className="text-neutral-500 text-[16px] leading-relaxed max-w-sm mb-6">Many of our experiments live openly on GitHub. Follow the work, explore the code, and see what we're building next.</p>
+              <a className="inline-flex items-center gap-2 bg-white text-black rounded-lg px-5 py-3 text-[14px] font-medium hover:bg-neutral-200 transition-colors group" href="https://github.com/arpan085" target="_blank" rel="noreferrer">Explore GitHub <Arrow /></a>
+            </div>
+            <div className="border border-neutral-800 rounded-xl overflow-hidden bg-neutral-950" data-reveal>
+              <div className="flex justify-between px-5 py-3 border-b border-neutral-800 text-[11px] font-mono text-neutral-500 tracking-wider">
+                <span>REPOSITORIES</span>
+                <span className="flex items-center gap-2 text-neutral-400">
+                  <span className={`w-1.5 h-1.5 rounded-full ${githubState === 'ready' ? 'bg-green-400' : 'bg-neutral-500'} animate-pulse`} />
+                  {githubState === 'ready' ? 'LIVE' : githubState === 'loading' ? 'LOADING' : 'MEMBERS'}
+                </span>
+              </div>
+              {githubState === 'loading' ? (
+                <div className="grid gap-3 p-5">{[1,2,3].map((i) => <div key={i} className="h-3 bg-neutral-800 rounded animate-pulse" style={{ width: `${100 - i * 15}%` }} />)}</div>
+              ) : repos.length > 0 ? repos.map((repo) => (
+                <a className="flex justify-between items-start gap-5 px-5 py-4 border-b border-neutral-800 last:border-0 hover:bg-neutral-900 transition-colors" href={repo.html_url} target="_blank" rel="noreferrer" key={repo.id}>
+                  <div>
+                    <h3 className="text-[15px] mb-1" style={{ fontFamily: 'var(--font-heading)' }}>{repo.name}</h3>
+                    <p className="text-neutral-500 text-[13px] leading-snug max-w-[320px]">{repo.description ?? 'A Kynvera repository.'}</p>
+                  </div>
+                  <div className="flex gap-3 items-center text-[11px] font-mono text-neutral-500 shrink-0">
+                    <span className="text-neutral-400">{repo.language ?? 'CODE'}</span>
+                    <span>★ {repo.stargazers_count}</span>
+                    <span>⑂ {repo.forks_count}</span>
+                  </div>
+                </a>
+              )) : (
+                <div className="p-5 text-neutral-500 text-[14px]">
+                  <p>Explore the people behind the work while the organization feed connects.</p>
+                  <div className="flex gap-5 mt-4">
+                    <a href="https://github.com/arpan085" target="_blank" rel="noreferrer" className="text-neutral-300 text-[13px] hover:text-white transition-colors">arpan085 ↗</a>
+                    <a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer" className="text-neutral-300 text-[13px] hover:text-white transition-colors">26diyasubedi ↗</a>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ── Lab ── */}
+        <section className="hidden" id="lab-archive" aria-hidden="true">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
+              <div>
+                <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                  <span className="w-5 h-[1.5px] bg-neutral-400 block" />THE LAB
+                </span>
+                <h2 className="text-[clamp(28px,4vw,44px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Not everything becomes a product.</h2>
+              </div>
+              <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Some ideas exist simply because we wanted to know whether we could build them.</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
+              {labs.map(([label, text, status]) => (
+                <details className="bg-neutral-950 p-6 min-h-[180px] hover:bg-neutral-900 transition-colors group" key={label}>
+                  <summary className="list-none cursor-pointer outline-none [&::-webkit-details-marker]:hidden">
+                    <div className="flex justify-between text-[10px] font-mono text-neutral-500 tracking-wider">
+                      <span>{label}</span>
+                      <span className="w-1.5 h-1.5 bg-neutral-600 rounded-full group-open:bg-white transition-colors" />
+                    </div>
+                    <h3 className="text-[17px] tracking-tight mt-10 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>{text}</h3>
+                    <p className="text-[11px] font-mono text-neutral-500 tracking-wider">{status}</p>
+                  </summary>
+                  <div className="border-t border-neutral-800 pt-4 mt-4">
+                    <span className="text-[10px] font-mono text-neutral-500 tracking-wider">WHY IT EXISTS</span>
+                    <p className="text-neutral-500 text-[14px] leading-relaxed mt-2">
+                      {status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}
+                    </p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
         </section>
 
         <ProcessSection />
 
-        <section className="about-section section-wrap" id="about">
-          <div className="about-copy" data-reveal><SectionLabel number="07">THE REASON</SectionLabel><h2>Why Kynvera?</h2><p>Kynvera is a collaborative space for two people who enjoy building, experimenting, creating, and learning together.</p><p>We don't want to build things simply because they are technically possible. We want to build things that are useful, interesting, beautiful, or worth exploring.</p></div>
-          <div className="duality" data-reveal><div className="duality-side tech"><span className="duality-label">TECHNOLOGY</span><strong>Systems<br />that work.</strong><ul><li>Python</li><li>Backend</li><li>AI / ML</li><li>Automation</li><li>Systems</li></ul></div><div className="duality-join"><img src="/assets/logo/kynvera-symbol.svg" alt="" /></div><div className="duality-side creative"><span className="duality-label">CREATIVE</span><strong>Ideas<br />with a voice.</strong><ul><li>Writing</li><li>Digital publishing</li><li>Visual storytelling</li><li>Web experiences</li><li>Ideas</li></ul></div></div>
-          <div className="about-detail-grid" data-reveal><div><span className="duality-label">WHAT MATTERS</span><ul><li>Useful over merely possible.</li><li>Interesting enough to explore.</li><li>Beautiful enough to keep using.</li></ul></div><div><span className="duality-label">HOW WE MOVE</span><p>Discover the problem. Explore the shape. Build a version. Test what breaks. Release what is worth sharing.</p></div><div><span className="duality-label">THE POSTURE</span><p>Independent in direction, collaborative in practice, and curious about what the next version can teach us.</p></div></div>
+        {/* ── About / Founders ── */}
+        <section className="py-24 sm:py-32 lg:py-40" id="about">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start" data-reveal>
+              <div>
+                <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                  <span className="w-5 h-[1.5px] bg-[#43d1db] block" />THE PEOPLE
+                </span>
+                <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight mb-6" style={{ fontFamily: 'var(--font-heading)' }}>Two minds.<br />One useful direction.</h2>
+                <p className="text-neutral-400 text-[17px] leading-relaxed max-w-md mb-4">Kynvera is a two-person studio managed by Arpan Baral and Diya Subedi—combining product thinking, engineering, design, and words from the start.</p>
+                <p className="text-neutral-300 text-[17px] leading-relaxed max-w-md">We make things that need both a dependable foundation and a human-facing point of view.</p>
+              </div>
+              <div className="border border-neutral-800 rounded-xl overflow-hidden grid grid-cols-1 sm:grid-cols-[1fr_48px_1fr] bg-neutral-950">
+                <div className="p-6">
+                  <span className="text-[11px] font-mono text-neutral-500 tracking-wider">TECHNOLOGY</span>
+                  <strong className="block text-[24px] mt-10 mb-8 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>Systems<br />that work.</strong>
+                  <ul className="text-neutral-500 text-[13px] space-y-1">{['Python', 'Backend', 'AI / ML', 'Automation', 'Systems'].map(s => <li key={s}><span className="text-neutral-400 mr-2">→</span>{s}</li>)}</ul>
+                </div>
+                <div className="hidden sm:grid place-items-center bg-neutral-900 border-x border-neutral-800">
+                  <img src="/assets/logo/kynvera-symbol.svg" alt="" className="w-6 opacity-40 invert" />
+                </div>
+                <div className="p-6 border-t sm:border-t-0 border-neutral-800">
+                  <span className="text-[11px] font-mono text-neutral-500 tracking-wider">CREATIVE</span>
+                  <strong className="block text-[24px] mt-10 mb-8 tracking-tight leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>Ideas<br />with a voice.</strong>
+                  <ul className="text-neutral-500 text-[13px] space-y-1">{['Writing', 'Digital publishing', 'Visual storytelling', 'Web experiences', 'Ideas'].map(s => <li key={s}><span className="text-neutral-400 mr-2">→</span>{s}</li>)}</ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Founders — photo slots stay intentional until final portraits are supplied. */}
+            <div className="team-grid mt-12" data-reveal>
+              {teamMembers.map((member, index) => (
+                <article className="team-card" key={member.name}>
+                  <div className={`team-portrait portrait-${index + 1}`}>
+                    <img src={member.photo} alt={member.name} />
+                    <small>FOUNDER / 0{index + 1}</small>
+                  </div>
+                  <div className="team-copy">
+                    <span className="text-[10px] font-mono text-neutral-500 tracking-wider">FOUNDER / 0{index + 1}</span>
+                    <h3>{member.name}</h3>
+                    <p className="team-role">{member.role}</p>
+                    <p className="team-summary">{member.summary}</p>
+                    <button className="team-more" type="button" onClick={() => openPersonPage(member)}>View full profile <Arrow /></button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
-        <section className="founders-section section-wrap" data-reveal>
-          <div className="section-heading"><div><SectionLabel number="08">THE PEOPLE</SectionLabel><h2>The people behind Kynvera</h2></div><p>Two people, sharing a practice of making and learning.</p></div>
-          <div className="founder-grid"><article><span className="founder-index">FOUNDER / 01</span><h3>Arpan</h3><p className="founder-role">Developer</p><div className="founder-focus"><span>FOCUS</span><strong>Systems that work.</strong><p>Python, backend development, automation, and learning AI/ML through practical projects.</p></div><div className="founder-focus"><span>CONTRIBUTION</span><p>Turns complex technical questions into working software that can be tested, improved, and shared.</p></div><a href="https://github.com/arpan085" target="_blank" rel="noreferrer">github.com/arpan085 <Arrow /></a></article><article><span className="founder-index">FOUNDER / 02</span><h3>Diya</h3><p className="founder-role">Writer &amp; Creative Contributor</p><div className="founder-focus"><span>FOCUS</span><strong>Ideas with a voice.</strong><p>Poetry, writing, creative expression, and digital publishing.</p></div><div className="founder-focus"><span>CONTRIBUTION</span><p>Shapes the creative direction and helps give digital work a clear point of view.</p></div><a href="https://github.com/26diyasubedi" target="_blank" rel="noreferrer">github.com/26diyasubedi <Arrow /></a></article></div>
+        <BlogSection />
+        <LabSection />
+
+        {/* ── Philosophy banner ── */}
+        <section className="philosophy-banner py-24 sm:py-32 text-white relative overflow-hidden" data-reveal>
+          <div className="absolute right-[-3%] bottom-[-10%] text-[clamp(120px,20vw,300px)] font-extrabold tracking-tighter text-white/5 leading-none pointer-events-none select-none" style={{ fontFamily: 'var(--font-heading)' }}>KYNVERA</div>
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8 relative z-10">
+            <span className="philosophy-label inline-flex items-center gap-2 text-[13px] tracking-wide mb-4">
+              <span className="w-5 h-[1.5px] block" />THE LOOP
+            </span>
+            <h2 className="text-[clamp(44px,8vw,100px)] leading-[0.88] tracking-tighter mb-5" style={{ fontFamily: 'var(--font-heading)' }}>Build. Break.<br /><em className="philosophy-em italic">Learn. Build again.</em></h2>
+            <p className="philosophy-copy max-w-xs text-[15px] leading-relaxed">There is no straight line from an idea to something real. That is part of the work.</p>
+          </div>
         </section>
-
-        <section className="lab-section section-wrap" id="lab" data-reveal><div className="section-heading"><div><SectionLabel number="09">THE LAB</SectionLabel><h2>Not everything becomes a product.</h2></div><p>Some ideas exist simply because we wanted to know whether we could build them.</p></div><div className="lab-grid">{labs.map(([label, text, status]) => <details className="lab-card" key={label}><summary><div><span>{label}</span><i /></div><h3>{text}</h3><p>{status}</p></summary><div className="lab-context"><span>WHY IT EXISTS</span><p>{status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}</p></div></details>)}</div></section>
-
-        <section className="philosophy-section" data-reveal><div className="section-wrap"><SectionLabel number="10">THE LOOP</SectionLabel><h2>Build. Break.<br /><em>Learn. Build again.</em></h2><p>There is no straight line from an idea to something real. That is part of the work.</p></div></section>
 
         <ServicesSection />
-        <section className="contact-section section-wrap" id="contact" data-reveal><div className="contact-intro"><SectionLabel number="11">THE NEXT IDEA</SectionLabel><h2>Have an idea?</h2><p>We enjoy interesting problems, unusual ideas, and things worth building.</p><div className="contact-actions"><a className="button button-outline" href="https://github.com/arpan085" target="_blank" rel="noreferrer">GitHub <Arrow /></a></div></div><ContactForm /></section>
-        <NewsletterIssues />
-        <ResourceGuide />
-        <NewsletterSignup />
-      </main>
 
-      <footer className="site-footer section-wrap"><div className="footer-brand"><img src={theme === 'light' ? '/assets/logo/kynvera-monochrome.svg' : '/assets/logo/kynvera-reverse.svg'} alt="KYNVERA" /><p>Ideas into digital reality.</p></div><div className="footer-links"><a href="#projects">Projects</a><a href="#about">About</a><a href="#github">GitHub</a><a href="#contact">Contact</a></div><div className="footer-meta"><span>© 2026 Kynvera</span><span>INDEPENDENT / COLLABORATIVE / CURIOUS</span></div></footer>
+        {/* ── Contact ── */}
+        <section className="py-24 sm:py-32 lg:py-40" id="contact">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8 grid grid-cols-1 lg:grid-cols-[0.45fr_0.55fr] gap-12 lg:gap-20 items-start">
+            <div data-reveal>
+              <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
+                <span className="w-5 h-[1.5px] bg-neutral-400 block" />CONTACT
+              </span>
+              <h2 className="text-[clamp(40px,6vw,72px)] leading-[0.95] tracking-tighter mb-5" style={{ fontFamily: 'var(--font-heading)' }}>Have an idea?</h2>
+              <p className="text-neutral-400 text-[16px] leading-relaxed mb-6">We enjoy interesting problems, unusual ideas, and things worth building.</p>
+              <div className="flex flex-wrap gap-3">
+                <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 hover:text-white transition-colors group" href="mailto:hello@kynvera.com">Email us <Arrow /></a>
+                <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 hover:text-white transition-colors group" href="https://github.com/arpan085" target="_blank" rel="noreferrer">GitHub <Arrow /></a>
+              </div>
+            </div>
+            <div data-reveal>
+              <ContactForm />
+            </div>
+          </div>
+        </section>
 
-      {selectedProject && <div className="modal-backdrop" role="presentation" onClick={() => setSelectedProject(null)}><article className="project-modal" role="dialog" aria-modal="true" aria-labelledby="project-title" onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelectedProject(null)} aria-label="Close project details">×</button><div className="project-card-head"><span>{selectedProject.index} / {selectedProject.category}</span><span className="project-status">{selectedProject.status}</span></div><h2 id="project-title">{selectedProject.name}</h2><p className="modal-description">{selectedProject.description}</p><div className="modal-columns"><div><span className="modal-label">THE PROBLEM</span><p>{selectedProject.problem}</p></div><div><span className="modal-label">THE DIRECTION</span><p>{selectedProject.solution}</p></div></div><div className="tag-list">{selectedProject.technologies.map((technology) => <span key={technology}>{technology}</span>)}</div><div className="modal-actions">{selectedProject.source ? <a className="button button-primary" href={selectedProject.source} target="_blank" rel="noreferrer">View source <Arrow /></a> : <span className="button button-disabled">Source link pending</span>}{selectedProject.demo ? <a className="button button-outline" href={selectedProject.demo} target="_blank" rel="noreferrer">Live demo <Arrow /></a> : <span className="button button-disabled">Demo link pending</span>}</div></article></div>}
+        <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
+          <NewsletterSignup />
+        </div>
+
+        {/* ── Footer ── */}
+        <footer className="border-t border-neutral-800 py-8 mt-8">
+          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+            <div>
+              <img src="/assets/logo/kynvera-reverse.svg" alt="KYNVERA" className="w-32 mb-3" />
+              <p className="text-neutral-500 text-[13px]">Ideas into digital reality.</p>
+            </div>
+            <div className="flex gap-6">
+              <a href="#projects" className="text-neutral-500 text-[13px] hover:text-white transition-colors">Projects</a>
+              <a href="#about" className="text-neutral-500 text-[13px] hover:text-white transition-colors">About</a>
+              <a href="#github" className="text-neutral-500 text-[13px] hover:text-white transition-colors">GitHub</a>
+              <a href="#contact" className="text-neutral-500 text-[13px] hover:text-white transition-colors">Contact</a>
+            </div>
+            <div className="text-right text-neutral-600 text-[12px] space-y-1">
+              <p>© 2026 Kynvera</p>
+              <p>INDEPENDENT / COLLABORATIVE / CURIOUS</p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      <div className="scroll-meter" aria-hidden="true"><span style={{ transform: `scaleX(${Math.min(scrollProgress, 100) / 100})` }} /></div>
+      <button className={`back-to-top ${scrollProgress > 12 ? 'is-visible' : ''}`} type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑ <span>Top</span></button>
+
+      {selectedFounder && (
+        <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-xl grid place-items-center p-5" role="presentation" onClick={() => setSelectedFounder(null)}>
+          <article className="team-modal w-full max-w-[680px] bg-neutral-950 border border-neutral-800 rounded-2xl p-8 sm:p-12 relative shadow-2xl" style={{ animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1)' }} role="dialog" aria-modal="true" aria-labelledby="founder-title" onClick={(event) => event.stopPropagation()}>
+            <button className="absolute top-5 right-5 text-neutral-500 hover:text-white text-2xl transition-colors" onClick={() => setSelectedFounder(null)} aria-label="Close profile">×</button>
+            <span className="text-[10px] font-mono text-[#43d1db] tracking-wider">KYNVERA / FOUNDER PROFILE</span>
+            <h2 id="founder-title" className="text-[clamp(34px,5vw,64px)] tracking-tighter leading-none mt-8 mb-3" style={{ fontFamily: 'var(--font-heading)' }}>{selectedFounder.name}</h2>
+            <p className="text-neutral-300 text-[15px] mb-8">{selectedFounder.role}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-[.65fr_1.35fr] gap-8 border-y border-neutral-800 py-7">
+              <div><span className="text-[10px] font-mono text-neutral-500 tracking-wider">ROLE IN THE STUDIO</span><strong className="block text-[20px] mt-3 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>{selectedFounder.focus}</strong></div>
+              <div><span className="text-[10px] font-mono text-neutral-500 tracking-wider">PROFILE</span><p className="text-neutral-400 text-[15px] leading-relaxed mt-3 mb-0">{selectedFounder.summary}</p></div>
+            </div>
+            <div className="flex flex-wrap gap-2 my-7">{selectedFounder.skills.map((skill) => <span key={skill} className="px-3 py-1.5 rounded-full border border-neutral-800 text-[12px] text-neutral-400">{skill}</span>)}</div>
+            {selectedFounder.link && <a href={selectedFounder.link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-[#43d1db] text-black rounded-full px-5 py-3 text-[14px] font-medium hover:bg-white transition-colors group">Visit {selectedFounder.link.label} <Arrow /></a>}
+          </article>
+        </div>
+      )}
+
+      {/* ── Project Modal ── */}
+      {selectedProject && (
+        <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-xl grid place-items-center p-5" role="presentation" onClick={() => setSelectedProject(null)}>
+          <article className="project-modal w-full max-w-[700px] max-h-[90vh] overflow-auto bg-neutral-950 border border-neutral-800 rounded-2xl p-8 sm:p-12 relative shadow-2xl" style={{ animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1)' }} role="dialog" aria-modal="true" aria-labelledby="project-title" onClick={(e) => e.stopPropagation()}>
+            <button className="absolute top-5 right-5 text-neutral-500 hover:text-white text-2xl transition-colors" onClick={() => setSelectedProject(null)} aria-label="Close project details">×</button>
+            <div className="text-[11px] font-mono text-neutral-500 tracking-wider flex justify-between">
+              <span>{selectedProject.index} / {selectedProject.category}</span>
+              <span>{selectedProject.status}</span>
+            </div>
+            <h2 id="project-title" className="text-[clamp(28px,4vw,48px)] tracking-tighter leading-tight mt-10 mb-4 max-w-[500px]" style={{ fontFamily: 'var(--font-heading)' }}>{selectedProject.name}</h2>
+            <p className="text-neutral-400 text-[16px] leading-relaxed max-w-[500px] mb-8">{selectedProject.description}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-neutral-800 pt-6 mb-6">
+              <div>
+                <span className="text-[10px] font-mono text-neutral-500 tracking-wider">THE PROBLEM</span>
+                <p className="text-neutral-400 text-[14px] leading-relaxed mt-2">{selectedProject.problem}</p>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono text-neutral-500 tracking-wider">THE DIRECTION</span>
+                <p className="text-neutral-400 text-[14px] leading-relaxed mt-2">{selectedProject.solution}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-6">
+              {selectedProject.technologies.map((tech) => (
+                <span key={tech} className="px-2.5 py-1 border border-neutral-800 rounded-md text-[11px] text-neutral-500">{tech}</span>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              {selectedProject.source ? <a className="inline-flex items-center gap-2 bg-white text-black rounded-lg px-5 py-3 text-[14px] font-medium hover:bg-neutral-200 transition-colors group" href={selectedProject.source} target="_blank" rel="noreferrer">View source <Arrow /></a> : <span className="text-neutral-600 text-[13px] border border-dashed border-neutral-700 rounded-lg px-5 py-3">Source link pending</span>}
+              {selectedProject.demo ? <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 transition-colors group" href={selectedProject.demo} target="_blank" rel="noreferrer">Live demo <Arrow /></a> : <span className="text-neutral-600 text-[13px] border border-dashed border-neutral-700 rounded-lg px-5 py-3">Demo link pending</span>}
+            </div>
+          </article>
+        </div>
+      )}
     </div>
   )
 }

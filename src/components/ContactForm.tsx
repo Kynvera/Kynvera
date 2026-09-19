@@ -86,7 +86,20 @@ export default function ContactForm() {
 
     const recipient = import.meta.env.VITE_CONTACT_EMAIL
     if (!recipient) {
-      setStatus('error')
+      const subject = encodeURIComponent(`Kynvera inquiry from ${form.name.trim()}`)
+      const message = encodeURIComponent([
+        `Name: ${form.name.trim()}`,
+        `Email: ${form.email.trim()}`,
+        `Company: ${form.company.trim() || 'Not provided'}`,
+        `Project type: ${form.projectType}`,
+        `Budget: ${form.budget || 'Not provided'}`,
+        `Timeline: ${form.timeline || 'Not provided'}`,
+        '',
+        form.message.trim(),
+      ].join('\n'))
+      window.location.href = `mailto:hello@kynvera.com?subject=${subject}&body=${message}`
+      setStatus('success')
+      trackEvent('form_submit')
       return
     }
 
@@ -158,10 +171,10 @@ export default function ContactForm() {
           <span>Budget</span>
           <select name="budget" value={form.budget} onChange={updateField}>
             <option value="">Select one</option>
-            <option value="Under $2,000">Under $2,000</option>
-            <option value="$2,000 - $5,000">$2,000 - $5,000</option>
-            <option value="$5,000 - $15,000">$5,000 - $15,000</option>
-            <option value="$15,000+">$15,000+</option>
+            <option value="Under NPR 50,000">Under NPR 50,000</option>
+            <option value="NPR 50,000 - 1,00,000">NPR 50,000 - 1,00,000</option>
+            <option value="NPR 1,00,000 - 3,00,000">NPR 1,00,000 - 3,00,000</option>
+            <option value="NPR 3,00,000+">NPR 3,00,000+</option>
             <option value="Not sure yet">Not sure yet</option>
           </select>
         </label>
@@ -190,8 +203,8 @@ export default function ContactForm() {
       <div className="form-submit-row">
         <button className="button button-primary" type="submit" disabled={!isValid || status === 'sending'}>{status === 'sending' ? 'Sending...' : 'Send inquiry'} <span className="arrow" aria-hidden="true">↗</span></button>
         <div className="form-status" role="status" aria-live="polite">
-          {status === 'success' && 'Thanks. Your message has been sent.'}
-          {status === 'error' && (import.meta.env.VITE_CONTACT_EMAIL ? 'Something went wrong. Please try again.' : 'Contact email is not configured yet.')}
+          {status === 'success' && (import.meta.env.VITE_CONTACT_EMAIL ? 'Thanks. Your message has been sent.' : 'Your email app is opening with the inquiry ready to send.')}
+          {status === 'error' && 'Something went wrong. Please try again or email hello@kynvera.com.'}
         </div>
       </div>
     </form>

@@ -69,7 +69,7 @@ export default function Search({ items }: { items: SearchItem[] }) {
 
   return (
     <>
-      <button className="search-trigger" type="button" onClick={() => setOpen(true)} aria-label="Search the site"><span aria-hidden="true">⌕</span><span>Search</span><kbd>⌘K</kbd></button>
+      <button className="search-trigger" type="button" onClick={() => setOpen(true)} aria-label="Search the site"><span aria-hidden="true">⌕</span><span>Search</span><kbd>Ctrl K</kbd></button>
       {open && <div className="search-backdrop" role="presentation" onClick={() => setOpen(false)}><section className="search-panel" role="dialog" aria-modal="true" aria-labelledby="search-title" onClick={(event) => event.stopPropagation()}>
         <div className="search-heading"><span id="search-title">SEARCH / KYNVERA</span><button type="button" onClick={() => setOpen(false)} aria-label="Close search">ESC</button></div>
         <input className="search-input" autoFocus value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={handleKeyDown} placeholder="Projects, capabilities, lab..." aria-label="Search projects, capabilities, and lab entries" />
