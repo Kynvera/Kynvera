@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b1830"/>
+      <stop offset=".55" stop-color="#1a1120"/>
+      <stop offset="1" stop-color="#100b14"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".36" r=".6">
+      <stop offset="0" stop-color="#e8b8c4" stop-opacity=".22"/>
+      <stop offset=".6" stop-color="#e8b8c4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f6dccf"/>
+      <stop offset=".5" stop-color="#d8a878"/>
+      <stop offset="1" stop-color="#8f5a3a"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <g opacity=".1" stroke="#e8c4c4" font-family="Georgia, serif" font-size="120" font-style="italic">
+    <text x="60" y="180">“</text>
+    <text x="640" y="520">”</text>
+  </g>
+  <rect x="18" y="18" width="764" height="564" rx="26" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".45"/>
+  <g fill="none" stroke="url(#gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="400" cy="268" r="116"/>
+    <circle cx="400" cy="268" r="102" opacity=".35" stroke-width="1"/>
+    <path d="M452 198 C 430 236 408 268 372 296 C 352 312 336 322 322 326 C 340 328 364 322 384 306 C 414 280 436 240 452 198 Z"/>
+    <path d="M372 296 L328 344" stroke-width="1.6"/>
+    <path d="M404 250 C 396 262 388 272 378 282" stroke-width="1.2" opacity=".7"/>
+    <path d="M418 236 C 410 250 400 260 390 270" stroke-width="1.2" opacity=".5"/>
+    <circle cx="322" cy="348" r="3.5" fill="#e8cfa0" stroke="none"/>
+    <path d="M300 384 H500" stroke-width="1" opacity=".6"/>
+  </g>
+  <g fill="#f0d9cc" font-family="Georgia, serif" text-anchor="middle">
+    <text x="400" y="442" font-size="32" font-style="italic" letter-spacing="4">Poetry</text>
+    <text x="400" y="470" font-size="11" letter-spacing="5" opacity=".7" font-family="Arial, sans-serif">CREATIVE · PUBLISHING</text>
+  </g>
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="4" fill="#d8a878" opacity=".8">003 — ATELIER</text>
+  <text x="740" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="3" fill="#d8a878" opacity=".6" text-anchor="end">N° III</text>
+</svg>

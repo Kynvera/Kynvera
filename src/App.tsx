@@ -150,9 +150,9 @@ function Arrow() {
 function LabSection() {
   return <section className="py-16 sm:py-24" id="lab">
     <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
-        <div><span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3"><span className="w-5 h-[1.5px] bg-neutral-400 block" />THE LAB</span><h2 className="text-[clamp(28px,4vw,44px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Not everything becomes a product.</h2></div>
-        <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Some ideas exist simply because we wanted to know whether we could build them.</p>
+      <div className="lab-heading" data-reveal>
+        <div><span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3"><span className="w-5 h-[1.5px] bg-neutral-400 block" />THE LAB</span><h2 className="leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Not everything becomes a product. <em>Some ideas exist because we wanted to know if we could build them.</em></h2></div>
+        <span className="lab-count">03 OPEN THREADS</span>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
         {labs.map(([label, text, status]) => <details className="bg-neutral-950 p-6 min-h-[180px] hover:bg-neutral-900 transition-colors group" key={label}><summary className="list-none cursor-pointer outline-none [&::-webkit-details-marker]:hidden"><div className="flex justify-between text-[10px] font-mono text-neutral-500 tracking-wider"><span>{label}</span><span className="w-1.5 h-1.5 bg-neutral-600 rounded-full group-open:bg-white transition-colors" /></div><h3 className="text-[17px] tracking-tight mt-10 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>{text}</h3><p className="text-[11px] font-mono text-neutral-500 tracking-wider">{status}</p></summary><div className="border-t border-neutral-800 pt-4 mt-4"><span className="text-[10px] font-mono text-neutral-500 tracking-wider">WHY IT EXISTS</span><p className="text-neutral-500 text-[14px] leading-relaxed mt-2">{status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}</p></div></details>)}
@@ -174,26 +174,27 @@ function CapabilityIcon({ name }: { name: string }) {
 
 function ProjectMark({ visual }: { visual: string }) {
   const marks: Record<string, ReactNode> = {
-    cheapflix: <><path d="M4 6h16v12H4z" /><path d="M8 6v12M12 6v12M16 6v12" /></>,
-    'nepal-info': <><path d="M12 3 20 9v11H4V9l8-6Z" /><path d="M8 20v-6h8v6M9 10h.01M15 10h.01" /></>,
-    poetry: <><path d="M6 4h12v16H6z" /><path d="M9 8h6M9 12h6M9 16h3" /></>,
-    aeroplane: <path d="M3 13.5 21 5l-6.5 8 4 4-2 2-5.5-3-4 3 .5-5.5L3 13.5Z" />,
-    gallery: <><rect x="4" y="5" width="16" height="14" rx="2" /><circle cx="9" cy="10" r="1.5" /><path d="m6 17 4.5-4 3 2 2.5-3 2 5" /></>,
-    kynvera: <path d="M3 11h7V4l11 8-11 8v-7H3z" />,
-    ironman: <><circle cx="12" cy="12" r="8" /><path d="m12 4 2.4 5.6L20 12l-5.6 2.4L12 20l-2.4-5.6L4 12l5.6-2.4L12 4Z" /></>,
-    nepse: <><path d="M4 19V5M4 19h16" /><path d="m6 16 4-5 3 2 5-7" /><path d="M15 6h3v3" /></>,
+    cheapflix: <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M7 9.5h10v7H7z" /><path d="M10 9.5v7M14 9.5v7" strokeWidth="1.1" /></>,
+    'nepal-info': <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M7.5 15.5 10 10.5l1.6 2.2 1.8-3.2 3.1 6Z" strokeWidth="1.2" /><circle cx="12" cy="7.4" r=".9" fill="currentColor" stroke="none" /></>,
+    poetry: <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M14.8 6.5c-1.4 2.8-3 5-5.2 6.8-.9.8-1.9 1.3-2.8 1.5 1.2.2 2.6-.3 3.8-1.4 1.8-1.7 3.1-4 4.2-6.9Z" strokeWidth="1.2" /><path d="M9.6 13.8 7.5 16.5" strokeWidth="1.1" /></>,
+    aeroplane: <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M6 14.2 12 10.8l-.3 1.9 5-1-4 1.9-.4 1.6-1 1.6-2.6-1.1-1.6 1.2.2-1.7L6 14.2Z" strokeWidth="1.15" strokeLinejoin="round" /></>,
+    gallery: <><rect x="5" y="7" width="14" height="11" rx="1.5" strokeWidth="1.1" opacity=".8" /><path d="M5 7 12 4.5 19 7" strokeWidth="1.1" /><circle cx="10" cy="12.5" r="2" strokeWidth="1.1" /><circle cx="14.5" cy="12.5" r="2" strokeWidth="1.1" /><path d="M12 10.8v3.4" strokeWidth="1" opacity=".8" /></>,
+    kynvera: <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M9.5 7.5v9M9.5 12l2.6-4.5-1 4.5 1.2 4.5L9.5 12Z" strokeWidth="1.2" /><path d="M14.5 7.5v9M14.5 12l2.5-4.5M14.5 12l2.5 4.5" strokeWidth="1.2" /></>,
+    ironman: <><path d="M12 3.8 18.5 7.5v7L12 20.2 5.5 14.5v-7Z" strokeWidth="1.15" /><circle cx="12" cy="11.8" r="3.2" strokeWidth="1.2" /><circle cx="12" cy="11.8" r="1" fill="currentColor" stroke="none" /><path d="M12 5.8v1.6M12 16.2v1.6M7.2 11.8h1.6M15.2 11.8h1.6" strokeWidth="1" opacity=".8" /></>,
+    nepse: <><circle cx="12" cy="12" r="8.5" strokeWidth="1.1" opacity=".7" /><path d="M7.5 15.5 10 12.5l1.8 1.2 2.4-2.6 2.3-2" strokeWidth="1.25" /><path d="M14.2 9.1h2v2" strokeWidth="1.15" /><path d="M7.5 15.5H16.5" strokeWidth="1" opacity=".7" /></>,
   }
-  return <svg className="project-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{marks[visual]}</svg>
+  return <svg className="project-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{marks[visual]}</svg>
 }
 
 const projectImages: Record<string, string> = {
   cheapflix: '/assets/projects/cheapflix.png',
-  'nepal-info': '/assets/projects/nepal-info.png',
-  poetry: '/assets/projects/poetry.png',
-  aeroplane: '/assets/projects/aeroplane.png',
-  kynvera: '/assets/projects/kynvera.png',
-  ironman: '/assets/projects/ironman.jpg',
-  nepse: '/assets/projects/nepse.jpg',
+  'nepal-info': '/assets/projects/nepal-info.svg',
+  poetry: '/assets/projects/poetry.svg',
+  aeroplane: '/assets/projects/aeroplane.svg',
+  gallery: '/assets/projects/gallery.svg',
+  kynvera: '/assets/projects/kynvera.svg',
+  ironman: '/assets/projects/ironman.svg',
+  nepse: '/assets/projects/nepse.svg',
 }
 
 function ProjectVisual({ visual }: { visual: string }) {
@@ -261,15 +262,13 @@ function PersonDetailPage({ person, onBack }: { person: TeamMember; onBack: () =
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [selectedFounder, setSelectedFounder] = useState<TeamMember | null>(null)
   const [projectFilter, setProjectFilter] = useState('ALL')
   const [repos, setRepos] = useState<GithubRepo[]>([])
   const [githubState, setGithubState] = useState<'loading' | 'ready' | 'fallback'>('loading')
   const [pillsVisible, setPillsVisible] = useState(false)
+  const [emailCopied, setEmailCopied] = useState(false)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [detailHash, setDetailHash] = useState(() => window.location.hash)
-  const openerRef = useRef<HTMLElement | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
   useVideoScrub(videoRef)
@@ -333,34 +332,16 @@ function App() {
     return () => { observer.disconnect(); controller.abort(); document.removeEventListener('click', trackGithubClick); removeAnalytics() }
   }, [])
 
-  // Project modal management
-  useEffect(() => {
-    document.body.style.overflow = selectedProject ? 'hidden' : ''
-    if (selectedProject) window.requestAnimationFrame(() => document.querySelector<HTMLElement>('.project-modal button, .project-modal a[href]')?.focus())
-    if (!selectedProject) openerRef.current?.focus()
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (!selectedProject) return
-      if (event.key === 'Escape') setSelectedProject(null)
-      if (event.key === 'Tab') {
-        const dialog = document.querySelector<HTMLElement>('.project-modal')
-        const focusable = dialog ? Array.from(dialog.querySelectorAll<HTMLElement>('button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])')) : []
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus() }
-        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus() }
-      }
-    }
-    window.addEventListener('keydown', closeOnEscape)
-    return () => { document.body.style.overflow = ''; window.removeEventListener('keydown', closeOnEscape) }
-  }, [selectedProject])
-
   const closeMenu = () => setMenuOpen(false)
   const projectFilters = ['ALL', ...Array.from(new Set(projects.map((project) => project.category.split(' / ')[0])))]
   const filteredProjects = projectFilter === 'ALL' ? projects : projects.filter((project) => project.category.startsWith(projectFilter))
 
   const copyEmail = async () => {
-    try { await navigator.clipboard.writeText('hello@kynvera.com') } catch { /* silent */ }
+    try {
+      await navigator.clipboard.writeText('hello@kynvera.com')
+      setEmailCopied(true)
+      window.setTimeout(() => setEmailCopied(false), 2000)
+    } catch { /* clipboard unavailable — address is visible next to the button */ }
   }
 
   const openProjectPage = (project: Project) => {
@@ -381,14 +362,18 @@ function App() {
     <div className="min-h-screen relative bg-black text-white">
       <a className="fixed left-4 top-3 z-50 px-4 py-2 bg-white text-black text-sm rounded-lg -translate-y-[200%] focus:translate-y-0 transition-transform" href="#main">Skip to main content</a>
 
-      {/* ── Background Video ── */}
+      {/* ── Background film: plays on load, scrubs with the pointer ── */}
       <video
         ref={videoRef}
         className="fixed inset-0 z-0 w-full h-full object-cover"
         style={{ objectPosition: '70% center' }}
         muted
+        loop
+        autoPlay
         playsInline
-        preload="auto"
+        preload="metadata"
+        aria-hidden="true"
+        disablePictureInPicture
       >
         <source src={VIDEO_URL} type="video/mp4" />
       </video>
@@ -458,9 +443,9 @@ function App() {
           {/* Typewriter text */}
           <h1 className="hero-title text-white mb-5 sm:mb-7">
             {displayed}
-            {!done && <span className="inline-block w-[3px] h-[.78em] bg-[#43d1db] align-middle ml-[6px] cursor-blink" />}
+            {!done && <span className="inline-block w-[3px] h-[.78em] bg-[#d8b270] align-middle ml-[6px] cursor-blink" />}
           </h1>
-          <p className="hero-description">Kynvera is an independent studio crafting software, digital experiences, and thoughtful experiments — one useful version at a time.</p>
+          <p className="hero-description">Two people in Kathmandu, building software, AI experiments, and thoughtful digital experiences — one useful version at a time.</p>
 
           {/* Action pill buttons */}
           <div
@@ -482,8 +467,9 @@ function App() {
             <button
               onClick={copyEmail}
               className="inline-flex items-center justify-center bg-transparent text-white border border-white rounded-full text-[13px] sm:text-[15px] px-4 sm:px-5 py-[0.3em] mx-[0.2em] mb-[0.4em] whitespace-nowrap gap-2 sm:gap-3 hover:bg-white hover:text-black transition-colors duration-200 cursor-pointer"
+              aria-live="polite"
             >
-              <span>Reach us: <span className="underline underline-offset-1">hello@kynvera.com</span></span>
+              <span>{emailCopied ? 'Copied ✓ — talk soon.' : <>Reach us: <span className="underline underline-offset-1">hello@kynvera.com</span></>}</span>
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
@@ -495,6 +481,9 @@ function App() {
 
       {/* ── Content sections below hero ── */}
       <div className="site-content relative z-[2]">
+        <p className="now-strip" data-reveal>
+          <span>NOW</span> Building CheapFlix · Probing NEPSE data · Writing notes in public
+        </p>
 
         {/* ── Capabilities ── */}
         <section className="py-24 sm:py-32 lg:py-40" id="build">
@@ -508,9 +497,9 @@ function App() {
               </div>
               <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Different tools. One shared habit: make the next version more useful.</p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
-              {capabilities.map((item) => (
-                <div className="capability-card bg-neutral-950 p-6 min-h-[280px] flex flex-col hover:bg-neutral-900 transition-colors group" key={item.number} data-reveal>
+            <div className="capability-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
+              {capabilities.map((item, index) => (
+                <div className="capability-card bg-neutral-950 p-6 min-h-[280px] flex flex-col hover:bg-neutral-900 transition-colors group" key={item.number} data-reveal style={{ '--reveal-delay': `${index * 70}ms` } as CSSProperties}>
                   <div className="flex items-start justify-between"><span className="text-[11px] font-mono text-neutral-500 tracking-wider">{item.number}</span><CapabilityIcon name={item.title} /></div>
                   <h3 className="text-[20px] mt-10 mb-3 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>{item.title}</h3>
                   <p className="text-neutral-500 text-[14px] leading-relaxed flex-1">{item.text}</p>
@@ -528,14 +517,13 @@ function App() {
         {/* ── Projects ── */}
         <section className="py-24 sm:py-32 lg:py-40" id="projects">
           <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
+            <div className="proj-heading" data-reveal>
               <div>
                 <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
                   <span className="w-5 h-[1.5px] bg-neutral-400 block" />PROJECTS
                 </span>
-                <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Things we've built</h2>
+                <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Things we've built <em>— eight so far, across software, design, data, and play.</em></h2>
               </div>
-              <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Eight products, experiments, and systems—built across software, design, data, and play.</p>
             </div>
 
             <div className="flex flex-wrap gap-2 mb-8" data-reveal>
@@ -551,9 +539,9 @@ function App() {
               ))}
             </div>
 
-            <div className="project-ledger" data-reveal>
-              {filteredProjects.map((project) => (
-                <article className="ledger-project" key={project.index}>
+            <div className="project-ledger">
+              {filteredProjects.map((project, index) => (
+                <article className="ledger-project" key={project.index} data-reveal style={{ '--reveal-delay': `${(index % 4) * 60}ms` } as CSSProperties}>
                   <div className={`ledger-art ${project.visual} ${projectImages[project.visual] ? 'with-image' : ''}`} aria-hidden="true"><span>{project.index}</span><ProjectVisual visual={project.visual} /><i>{project.category.split(' / ')[0]}</i><b>{project.status}</b></div>
                   <div className="ledger-copy">
                     <div className="ledger-meta"><span>{project.category}</span><span>PROJECT / {project.index}</span></div>
@@ -573,7 +561,6 @@ function App() {
         </section>
 
         <CaseStudiesSection />
-        {false && <BlogSection />}
 
         {/* ── GitHub ── */}
         <section className="py-24 sm:py-32 lg:py-40" id="github">
@@ -621,41 +608,6 @@ function App() {
           </div>
         </section>
 
-        {/* ── Lab ── */}
-        <section className="hidden" id="lab-archive" aria-hidden="true">
-          <div className="w-full max-w-[1200px] mx-auto px-5 sm:px-8">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 mb-12" data-reveal>
-              <div>
-                <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
-                  <span className="w-5 h-[1.5px] bg-neutral-400 block" />THE LAB
-                </span>
-                <h2 className="text-[clamp(28px,4vw,44px)] leading-none tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>Not everything becomes a product.</h2>
-              </div>
-              <p className="max-w-xs text-neutral-500 text-[15px] leading-relaxed">Some ideas exist simply because we wanted to know whether we could build them.</p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-[1px] bg-neutral-800 rounded-xl overflow-hidden border border-neutral-800">
-              {labs.map(([label, text, status]) => (
-                <details className="bg-neutral-950 p-6 min-h-[180px] hover:bg-neutral-900 transition-colors group" key={label}>
-                  <summary className="list-none cursor-pointer outline-none [&::-webkit-details-marker]:hidden">
-                    <div className="flex justify-between text-[10px] font-mono text-neutral-500 tracking-wider">
-                      <span>{label}</span>
-                      <span className="w-1.5 h-1.5 bg-neutral-600 rounded-full group-open:bg-white transition-colors" />
-                    </div>
-                    <h3 className="text-[17px] tracking-tight mt-10 mb-4" style={{ fontFamily: 'var(--font-heading)' }}>{text}</h3>
-                    <p className="text-[11px] font-mono text-neutral-500 tracking-wider">{status}</p>
-                  </summary>
-                  <div className="border-t border-neutral-800 pt-4 mt-4">
-                    <span className="text-[10px] font-mono text-neutral-500 tracking-wider">WHY IT EXISTS</span>
-                    <p className="text-neutral-500 text-[14px] leading-relaxed mt-2">
-                      {status === 'ACTIVE' ? 'A live question being explored through a small system and careful iteration.' : status === 'EXPERIMENTAL' ? 'A prototype used to learn what the idea can become before it earns a larger shape.' : 'An archived direction kept as reference for what the work taught us.'}
-                    </p>
-                  </div>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
         <ProcessSection />
 
         {/* ── About / Founders ── */}
@@ -664,7 +616,7 @@ function App() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start" data-reveal>
               <div>
                 <span className="inline-flex items-center gap-2 text-[13px] text-neutral-400 tracking-wide mb-3">
-                  <span className="w-5 h-[1.5px] bg-[#43d1db] block" />THE PEOPLE
+                  <span className="w-5 h-[1.5px] bg-[#d8b270] block" />THE PEOPLE
                 </span>
                 <h2 className="text-[clamp(32px,5vw,56px)] leading-none tracking-tight mb-6" style={{ fontFamily: 'var(--font-heading)' }}>Two minds.<br />One useful direction.</h2>
                 <p className="text-neutral-400 text-[17px] leading-relaxed max-w-md mb-4">Kynvera is a two-person studio managed by Arpan Baral and Diya Subedi—combining product thinking, engineering, design, and words from the start.</p>
@@ -688,9 +640,9 @@ function App() {
             </div>
 
             {/* Founders — photo slots stay intentional until final portraits are supplied. */}
-            <div className="team-grid mt-12" data-reveal>
+            <div className="team-grid mt-12">
               {teamMembers.map((member, index) => (
-                <article className="team-card" key={member.name}>
+                <article className="team-card" key={member.name} style={{ '--reveal-delay': `${index * 90}ms` } as CSSProperties} data-reveal>
                   <div className={`team-portrait portrait-${index + 1}`}>
                     <img src={member.photo} alt={member.name} />
                     <small>FOUNDER / 0{index + 1}</small>
@@ -738,6 +690,7 @@ function App() {
                 <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 hover:text-white transition-colors group" href="mailto:hello@kynvera.com">Email us <Arrow /></a>
                 <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 hover:text-white transition-colors group" href="https://github.com/arpan085" target="_blank" rel="noreferrer">GitHub <Arrow /></a>
               </div>
+              <p className="contact-boundaries">No decks. No account managers.<br />No promises before discovery.</p>
             </div>
             <div data-reveal>
               <ContactForm />
@@ -764,6 +717,7 @@ function App() {
             </div>
             <div className="text-right text-neutral-600 text-[12px] space-y-1">
               <p>© 2026 Kynvera</p>
+              <p>TENDED SEP 2026 · 27.71°N, 85.32°E</p>
               <p>INDEPENDENT / COLLABORATIVE / CURIOUS</p>
             </div>
           </div>
@@ -772,57 +726,6 @@ function App() {
 
       <div className="scroll-meter" aria-hidden="true"><span style={{ transform: `scaleX(${Math.min(scrollProgress, 100) / 100})` }} /></div>
       <button className={`back-to-top ${scrollProgress > 12 ? 'is-visible' : ''}`} type="button" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑ <span>Top</span></button>
-
-      {selectedFounder && (
-        <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-xl grid place-items-center p-5" role="presentation" onClick={() => setSelectedFounder(null)}>
-          <article className="team-modal w-full max-w-[680px] bg-neutral-950 border border-neutral-800 rounded-2xl p-8 sm:p-12 relative shadow-2xl" style={{ animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1)' }} role="dialog" aria-modal="true" aria-labelledby="founder-title" onClick={(event) => event.stopPropagation()}>
-            <button className="absolute top-5 right-5 text-neutral-500 hover:text-white text-2xl transition-colors" onClick={() => setSelectedFounder(null)} aria-label="Close profile">×</button>
-            <span className="text-[10px] font-mono text-[#43d1db] tracking-wider">KYNVERA / FOUNDER PROFILE</span>
-            <h2 id="founder-title" className="text-[clamp(34px,5vw,64px)] tracking-tighter leading-none mt-8 mb-3" style={{ fontFamily: 'var(--font-heading)' }}>{selectedFounder.name}</h2>
-            <p className="text-neutral-300 text-[15px] mb-8">{selectedFounder.role}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-[.65fr_1.35fr] gap-8 border-y border-neutral-800 py-7">
-              <div><span className="text-[10px] font-mono text-neutral-500 tracking-wider">ROLE IN THE STUDIO</span><strong className="block text-[20px] mt-3 tracking-tight" style={{ fontFamily: 'var(--font-heading)' }}>{selectedFounder.focus}</strong></div>
-              <div><span className="text-[10px] font-mono text-neutral-500 tracking-wider">PROFILE</span><p className="text-neutral-400 text-[15px] leading-relaxed mt-3 mb-0">{selectedFounder.summary}</p></div>
-            </div>
-            <div className="flex flex-wrap gap-2 my-7">{selectedFounder.skills.map((skill) => <span key={skill} className="px-3 py-1.5 rounded-full border border-neutral-800 text-[12px] text-neutral-400">{skill}</span>)}</div>
-            {selectedFounder.link && <a href={selectedFounder.link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-[#43d1db] text-black rounded-full px-5 py-3 text-[14px] font-medium hover:bg-white transition-colors group">Visit {selectedFounder.link.label} <Arrow /></a>}
-          </article>
-        </div>
-      )}
-
-      {/* ── Project Modal ── */}
-      {selectedProject && (
-        <div className="fixed inset-0 z-40 bg-black/80 backdrop-blur-xl grid place-items-center p-5" role="presentation" onClick={() => setSelectedProject(null)}>
-          <article className="project-modal w-full max-w-[700px] max-h-[90vh] overflow-auto bg-neutral-950 border border-neutral-800 rounded-2xl p-8 sm:p-12 relative shadow-2xl" style={{ animation: 'slideUp 0.3s cubic-bezier(0.16,1,0.3,1)' }} role="dialog" aria-modal="true" aria-labelledby="project-title" onClick={(e) => e.stopPropagation()}>
-            <button className="absolute top-5 right-5 text-neutral-500 hover:text-white text-2xl transition-colors" onClick={() => setSelectedProject(null)} aria-label="Close project details">×</button>
-            <div className="text-[11px] font-mono text-neutral-500 tracking-wider flex justify-between">
-              <span>{selectedProject.index} / {selectedProject.category}</span>
-              <span>{selectedProject.status}</span>
-            </div>
-            <h2 id="project-title" className="text-[clamp(28px,4vw,48px)] tracking-tighter leading-tight mt-10 mb-4 max-w-[500px]" style={{ fontFamily: 'var(--font-heading)' }}>{selectedProject.name}</h2>
-            <p className="text-neutral-400 text-[16px] leading-relaxed max-w-[500px] mb-8">{selectedProject.description}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 border-t border-neutral-800 pt-6 mb-6">
-              <div>
-                <span className="text-[10px] font-mono text-neutral-500 tracking-wider">THE PROBLEM</span>
-                <p className="text-neutral-400 text-[14px] leading-relaxed mt-2">{selectedProject.problem}</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-mono text-neutral-500 tracking-wider">THE DIRECTION</span>
-                <p className="text-neutral-400 text-[14px] leading-relaxed mt-2">{selectedProject.solution}</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-1.5 mb-6">
-              {selectedProject.technologies.map((tech) => (
-                <span key={tech} className="px-2.5 py-1 border border-neutral-800 rounded-md text-[11px] text-neutral-500">{tech}</span>
-              ))}
-            </div>
-            <div className="flex gap-3">
-              {selectedProject.source ? <a className="inline-flex items-center gap-2 bg-white text-black rounded-lg px-5 py-3 text-[14px] font-medium hover:bg-neutral-200 transition-colors group" href={selectedProject.source} target="_blank" rel="noreferrer">View source <Arrow /></a> : <span className="text-neutral-600 text-[13px] border border-dashed border-neutral-700 rounded-lg px-5 py-3">Source link pending</span>}
-              {selectedProject.demo ? <a className="inline-flex items-center gap-2 border border-neutral-700 rounded-lg px-5 py-3 text-[14px] text-neutral-300 hover:border-neutral-500 transition-colors group" href={selectedProject.demo} target="_blank" rel="noreferrer">Live demo <Arrow /></a> : <span className="text-neutral-600 text-[13px] border border-dashed border-neutral-700 rounded-lg px-5 py-3">Demo link pending</span>}
-            </div>
-          </article>
-        </div>
-      )}
     </div>
   )
 }

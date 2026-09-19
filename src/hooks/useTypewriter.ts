@@ -22,8 +22,6 @@ export function useTypewriter(text: string, speed = 38, startDelay = 600) {
           setDisplayed(text.slice(0, indexRef.current))
         }
       }, speed)
-
-      return () => clearInterval(interval)
     }, startDelay)
 
     return () => {

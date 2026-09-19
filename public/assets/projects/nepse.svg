@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#15251c"/>
+      <stop offset=".55" stop-color="#0e1a13"/>
+      <stop offset="1" stop-color="#090f0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".34" r=".6">
+      <stop offset="0" stop-color="#7ad8a8" stop-opacity=".2"/>
+      <stop offset=".6" stop-color="#d8b270" stop-opacity=".12"/>
+      <stop offset=".8" stop-color="#d8b270" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef4dc"/>
+      <stop offset=".5" stop-color="#c8b078"/>
+      <stop offset="1" stop-color="#7a6a2e"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <g opacity=".14" stroke="#7ad8a8" stroke-width="1" fill="none">
+    <path d="M120 420 H680 M120 360 H680 M120 300 H680 M120 240 H680 M120 180 H680"/>
+    <path d="M160 140 V460 M320 140 V460 M480 140 V460 M640 140 V460" opacity=".5"/>
+  </g>
+  <rect x="18" y="18" width="764" height="564" rx="26" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".45"/>
+  <g fill="none" stroke="url(#gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="282" y="152" width="236" height="236" rx="118"/>
+    <rect x="298" y="168" width="204" height="204" rx="102" opacity=".35" stroke-width="1"/>
+    <path d="M328 322 L372 278 L398 296 L430 262 L472 222"/>
+    <path d="M448 222 H472 V246" stroke-width="1.8"/>
+    <path d="M328 322 L328 336 M372 278 L372 336 M398 296 L398 336 M430 262 L430 336 M472 222 L472 336" stroke-width="1.2" opacity=".55"/>
+    <path d="M318 336 H482" stroke-width="1.6"/>
+  </g>
+  <g fill="#e8ecd4" font-family="Georgia, serif" text-anchor="middle">
+    <text x="400" y="444" font-size="30" letter-spacing="6">NEPSE</text>
+    <text x="400" y="472" font-size="11" letter-spacing="5" opacity=".7" font-family="Arial, sans-serif">QUANT · AI RESEARCH</text>
+  </g>
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="4" fill="#9ad8b4" opacity=".85">008 — FINANCE</text>
+  <text x="740" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="3" fill="#9ad8b4" opacity=".6" text-anchor="end">NPL · AI</text>
+</svg>

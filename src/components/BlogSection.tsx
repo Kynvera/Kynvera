@@ -23,7 +23,7 @@ export default function BlogSection() {
 
   return (
     <section className="blog-section section-wrap" id="notes">
-      <div className="section-heading" data-reveal><div><div className="section-label"><span>15</span>THE NOTES</div><h2>Thinking in public.</h2></div><p>Short working notes from the questions, systems, and experiments behind the work.</p></div>
+      <div className="section-heading heading-stacked" data-reveal><div><div className="section-label"><span>15</span>THE NOTES</div><h2>Thinking in public.</h2></div><p>Short working notes from the questions, systems, and experiments behind the work.</p></div>
       <div className="blog-list">{articles.map((article) => <article className={`blog-entry ${selected === article.id ? 'expanded' : ''}`} key={article.id} data-reveal>
         <button type="button" onClick={() => setSelected(selected === article.id ? null : article.id)} aria-expanded={selected === article.id}>
           <span className="blog-entry-number">{article.number}</span><span className="blog-entry-main"><strong>{article.title}</strong><small>{article.summary}</small></span><span className="blog-entry-meta"><span>{article.category}</span><span>{selected === article.id ? 'CLOSE' : 'OPEN'}</span></span>

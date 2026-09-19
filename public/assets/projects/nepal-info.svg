@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#16261f"/>
+      <stop offset=".55" stop-color="#0f1b17"/>
+      <stop offset="1" stop-color="#0a120f"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".38" r=".55">
+      <stop offset="0" stop-color="#d8b270" stop-opacity=".28"/>
+      <stop offset=".6" stop-color="#d8b270" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3e2b8"/>
+      <stop offset=".5" stop-color="#d8b270"/>
+      <stop offset="1" stop-color="#9a7433"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <g opacity=".14" stroke="#d8b270" stroke-width="1" fill="none">
+    <path d="M-40 140 Q 200 110 400 150 T 840 130"/>
+    <path d="M-40 190 Q 200 160 400 200 T 840 180"/>
+    <path d="M-40 240 Q 200 210 400 250 T 840 230"/>
+    <path d="M-40 420 Q 200 390 400 430 T 840 410"/>
+    <path d="M-40 470 Q 200 440 400 480 T 840 460"/>
+  </g>
+  <rect x="18" y="18" width="764" height="564" rx="26" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".45"/>
+  <rect x="30" y="30" width="740" height="540" rx="20" fill="none" stroke="#d8b270" stroke-width=".6" opacity=".22"/>
+  <g fill="none" stroke="url(#gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="400" cy="272" r="118"/>
+    <circle cx="400" cy="272" r="104" opacity=".4" stroke-width="1"/>
+    <path d="M318 306 L368 224 L392 262 L416 210 L482 306 Z"/>
+    <path d="M352 306 L376 260 L392 280 L410 252 L446 306" stroke-width="1.4" opacity=".85"/>
+    <circle cx="400" cy="196" r="4" fill="#e8cfa0" stroke="none"/>
+    <path d="M400 200 L400 214" stroke-width="1.4"/>
+    <path d="M290 380 H510" stroke-width="1" opacity=".6"/>
+    <path d="M340 396 H460" stroke-width="1" opacity=".35"/>
+  </g>
+  <g fill="#e8d9b8" font-family="Georgia, serif" text-anchor="middle">
+    <text x="400" y="442" font-size="30" letter-spacing="8">NEPAL</text>
+    <text x="400" y="472" font-size="12" letter-spacing="5" opacity=".7" font-family="Arial, sans-serif">ADMINISTRATIVE INTELLIGENCE</text>
+  </g>
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="4" fill="#d8b270" opacity=".8">002 — DATA / API</text>
+  <text x="740" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="3" fill="#d8b270" opacity=".6" text-anchor="end">EST. MMXXVI</text>
+</svg>

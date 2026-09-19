@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2c1a24"/>
+      <stop offset=".55" stop-color="#1a1218"/>
+      <stop offset="1" stop-color="#100b0e"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".36" r=".6">
+      <stop offset="0" stop-color="#e8a8b4" stop-opacity=".2"/>
+      <stop offset=".6" stop-color="#e8a8b4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4d8dc"/>
+      <stop offset=".5" stop-color="#c89880"/>
+      <stop offset="1" stop-color="#8a5f4c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <rect width="800" height="600" fill="url(#glow)"/>
+  <rect x="18" y="18" width="764" height="564" rx="26" fill="none" stroke="url(#gold)" stroke-width="1.2" opacity=".45"/>
+  <g fill="none" stroke="url(#gold)" stroke-width="2.2" stroke-linecap="round">
+    <path d="M250 200 H550 V384 H250 Z" opacity=".9"/>
+    <path d="M250 200 L400 140 L550 200" stroke-width="1.6"/>
+    <circle cx="358" cy="292" r="52"/>
+    <circle cx="442" cy="292" r="52"/>
+    <path d="M358 292 m-8 0 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0" stroke-width="1.4" opacity=".8"/>
+    <path d="M442 292 m-8 0 a8 8 0 1 0 16 0 a8 8 0 1 0 -16 0" stroke-width="1.4" opacity=".8"/>
+    <path d="M400 256 L400 328" stroke-width="1.2" opacity=".7"/>
+    <path d="M400 256 l-10 12 M400 256 l10 12" stroke-width="1.2" opacity=".7"/>
+    <path d="M310 410 H490" stroke-width="1" opacity=".55"/>
+  </g>
+  <g fill="#eed8d4" font-family="Georgia, serif" text-anchor="middle">
+    <text x="400" y="448" font-size="26" letter-spacing="5">Private Gallery</text>
+    <text x="400" y="474" font-size="11" letter-spacing="5" opacity=".7" font-family="Arial, sans-serif">FOR TWO · BY INVITATION</text>
+  </g>
+  <text x="60" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="4" fill="#c89880" opacity=".85">005 — PRIVATE</text>
+  <text x="740" y="72" font-family="Arial, sans-serif" font-size="11" letter-spacing="3" fill="#c89880" opacity=".6" text-anchor="end">N° 02</text>
+</svg>
