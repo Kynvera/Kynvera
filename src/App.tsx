@@ -370,18 +370,14 @@ function App() {
     <div className="min-h-screen relative bg-black text-white">
       <a className="fixed left-4 top-3 z-50 px-4 py-2 bg-white text-black text-sm rounded-lg -translate-y-[200%] focus:translate-y-0 transition-transform" href="#main">Skip to main content</a>
 
-      {/* ── Background film: plays on load, scrubs with the pointer ── */}
+      {/* ── Background Video ── */}
       <video
         ref={videoRef}
         className="hero-film fixed inset-0 z-0 w-full h-full object-cover"
         style={{ objectPosition: '70% center' }}
         muted
-        loop
-        autoPlay
         playsInline
-        preload="metadata"
-        aria-hidden="true"
-        disablePictureInPicture
+        preload="auto"
       >
         <source src={VIDEO_URL} type="video/mp4" />
       </video>

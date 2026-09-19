@@ -1,95 +1,56 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useCallback } from 'react'
 
-/* Hero film flows on its own and yields to the cursor: moving the pointer
-   grabs the film (pauses + eases to the pointer-X time); releasing it for
-   a beat hands playback back. Touch-drag grabs the same way. */
-const GRAB_MS = 1200
-const SEEK_EPSILON = 0.04
+const SENSITIVITY = 0.8
 
 export function useVideoScrub(videoRef: React.RefObject<HTMLVideoElement | null>) {
-  const targetRef = useRef(0)
-  const smoothRef = useRef(0)
-  const lastMoveRef = useRef(0)
+  const prevXRef = useRef<number | null>(null)
+  const targetTimeRef = useRef(0)
+  const seekingRef = useRef(false)
+
+  const seekToTarget = useCallback(() => {
+    const video = videoRef.current
+    if (!video || !video.duration) return
+
+    seekingRef.current = true
+    video.currentTime = targetTimeRef.current
+  }, [videoRef])
 
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
-    let ready = false
-    let raf = 0
-
-    const resume = () => {
-      targetRef.current = video.currentTime || 0
-      smoothRef.current = targetRef.current
-      if (video.paused) {
-        const attempt = video.play()
-        if (attempt) attempt.catch(() => undefined)
+    const handleSeeked = () => {
+      seekingRef.current = false
+      if (Math.abs(video.currentTime - targetTimeRef.current) > 0.01) {
+        seekToTarget()
       }
     }
 
-    const tick = () => {
-      if (ready && !document.hidden && video.duration) {
-        if (performance.now() - lastMoveRef.current > GRAB_MS) {
-          // Hands off: flow freely and track live time so the next grab
-          // starts exactly where the film is.
-          resume()
-        } else {
-          // Grabbed: hold still and ease toward the pointer's frame.
-          if (!video.paused) {
-            try {
-              video.pause()
-            } catch {
-              /* already paused */
-            }
-          }
-          smoothRef.current += (targetRef.current - smoothRef.current) * 0.16
-          if (Math.abs(smoothRef.current - targetRef.current) < SEEK_EPSILON) {
-            smoothRef.current = targetRef.current
-          }
-          if (Math.abs(video.currentTime - smoothRef.current) > SEEK_EPSILON) {
-            try {
-              video.currentTime = smoothRef.current
-            } catch {
-              /* stream still buffering — retried on the next frame */
-            }
-          }
-        }
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!video.duration) return
+
+      if (prevXRef.current === null) {
+        prevXRef.current = e.clientX
+        return
       }
-      raf = requestAnimationFrame(tick)
+
+      const delta = e.clientX - prevXRef.current
+      prevXRef.current = e.clientX
+
+      const timeOffset = (delta / window.innerWidth) * SENSITIVITY * video.duration
+      targetTimeRef.current = Math.max(0, Math.min(video.duration, targetTimeRef.current + timeOffset))
+
+      if (!seekingRef.current) {
+        seekToTarget()
+      }
     }
 
-    const markReady = () => {
-      if (ready) return
-      ready = true
-      targetRef.current = video.currentTime || 0
-      smoothRef.current = targetRef.current
-      lastMoveRef.current = 0
-      const attempt = video.play()
-      if (attempt) attempt.catch(() => undefined)
-      raf = requestAnimationFrame(tick)
-    }
-    if (video.readyState >= 1) markReady()
-
-    const pointTo = (clientX: number) => {
-      if (!ready || !video.duration) return
-      lastMoveRef.current = performance.now()
-      targetRef.current = Math.max(0, Math.min(video.duration, (clientX / window.innerWidth) * video.duration))
-    }
-    const onMouseMove = (event: MouseEvent) => pointTo(event.clientX)
-    const onTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      if (touch) pointTo(touch.clientX)
-    }
-
-    video.addEventListener('loadedmetadata', markReady)
-    window.addEventListener('mousemove', onMouseMove, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    video.addEventListener('seeked', handleSeeked)
+    window.addEventListener('mousemove', handleMouseMove)
 
     return () => {
-      cancelAnimationFrame(raf)
-      video.removeEventListener('loadedmetadata', markReady)
-      window.removeEventListener('mousemove', onMouseMove)
-      window.removeEventListener('touchmove', onTouchMove)
+      video.removeEventListener('seeked', handleSeeked)
+      window.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [videoRef])
+  }, [videoRef, seekToTarget])
 }
