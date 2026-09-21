@@ -463,7 +463,7 @@ function App() {
       <div className="site-video-overlay fixed inset-0 z-[1] pointer-events-none" aria-hidden="true" />
 
       {/* Soft gold glow that trails the cursor across the hero */}
-      <div className="hero-cursor-glow fixed inset-0 z-[1] pointer-events-none" aria-hidden="true" />
+      <div className="hero-cursor-glow fixed left-0 top-0 z-[1] pointer-events-none" aria-hidden="true" />
 
       {/* ── Navbar ── */}
       <header className="studio-nav fixed top-4 left-4 right-4 sm:left-8 sm:right-8 z-10 flex items-center justify-between px-4 sm:px-5 py-3">

@@ -117,16 +117,24 @@ body::before {
   will-change: transform;
 }
 
-/* Soft gold glow that trails the cursor across the hero. Pure CSS vars —
-   no layout, no repaints of content, compositor-friendly. */
+/* Soft gold glow that trails the cursor across the hero. A small layer moved
+   by transform only (compositor work) — never a full-screen repaint. */
 .hero-cursor-glow {
+  left: 0;
+  top: 0;
+  width: min(560px, 130vw);
+  height: min(560px, 130vw);
+  transform:
+    translate3d(calc(var(--mx) * 100vw), calc(var(--my) * 100vh), 0)
+    translate(-50%, -50%);
   background:
     radial-gradient(
-      560px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+      circle,
       rgba(216, 178, 112, 0.17),
       rgba(216, 178, 112, 0.05) 42%,
       transparent 70%
     );
+  will-change: transform;
 }
 
 /* ============================================================
