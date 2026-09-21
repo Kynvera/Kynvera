@@ -6,9 +6,9 @@
    ============================================================ */
 
 :root {
-  --font-heading: 'HelveticaNowDisplay-Medium', 'Helvetica Neue', Arial, sans-serif;
-  --font-body: 'Manrope', 'HelveticaNowDisplayW01-Rg', 'Helvetica Neue', Arial, sans-serif;
-  --font-editorial: 'Bodoni Moda', Georgia, serif;
+  --font-heading: 'Fraunces', 'Georgia', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-editorial: 'Fraunces', 'Georgia', serif;
   --font-mono: 'DM Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --ink: #0e0c0b;
@@ -41,6 +41,7 @@ body {
   color: #fff;
   font-family: var(--font-body);
   line-height: 1.6;
+  letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -210,7 +211,9 @@ body::before {
   margin: 0 0 1.1rem;
   font-family: var(--font-heading);
   font-size: clamp(2.9rem, 8vw, 7.2rem);
-  font-weight: 500; line-height: 0.94; letter-spacing: -0.06em;
+  font-weight: 500; line-height: 0.94; letter-spacing: -0.03em;
+  font-optical-sizing: auto;
+  font-variation-settings: 'opsz' 144, 'SOFT' 50, 'WONK' 1;
   text-wrap: balance;
   text-shadow: 0 3px 34px rgba(0, 0, 0, 0.45);
 }
@@ -235,8 +238,15 @@ body::before {
 .section-heading h2, .process-intro h2, .newsletter-signup h2 {
   margin: 0.65rem 0 0;
   font-family: var(--font-editorial); font-weight: 500;
-  font-size: clamp(2.4rem, 5vw, 4.2rem); line-height: 0.95; letter-spacing: -0.055em;
+  font-size: clamp(2.4rem, 5vw, 4.2rem); line-height: 0.95; letter-spacing: -0.02em;
+  font-optical-sizing: auto;
   text-wrap: balance; color: var(--cream);
+}
+/* Editorial italics get the wonky display cut — the anti-generic touch. */
+.section-heading h2 em, .process-intro h2 em, .newsletter-signup h2 em,
+.collaboration-heading h2 em, .philosophy-em, .proj-heading h2 em {
+  font-style: italic;
+  font-variation-settings: 'opsz' 144, 'SOFT' 60, 'WONK' 1;
 }
 .section-heading > p { width: min(100%, 22rem); margin: 0; color: var(--muted); font-size: 0.95rem; line-height: 1.65; }
 /* Heading variety — no two sections open the same way. */

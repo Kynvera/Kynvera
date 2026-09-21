@@ -454,7 +454,7 @@ function App() {
         style={{ objectPosition: '70% center' }}
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
       >
         <source src={VIDEO_URL} type="video/mp4" />
       </video>
