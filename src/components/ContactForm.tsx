@@ -171,10 +171,10 @@ export default function ContactForm() {
           <span>Budget</span>
           <select name="budget" value={form.budget} onChange={updateField}>
             <option value="">Select one</option>
-            <option value="Under NPR 50,000">Under NPR 50,000</option>
-            <option value="NPR 50,000 - 1,00,000">NPR 50,000 - 1,00,000</option>
-            <option value="NPR 1,00,000 - 3,00,000">NPR 1,00,000 - 3,00,000</option>
-            <option value="NPR 3,00,000+">NPR 3,00,000+</option>
+            <option value="Under $500">Under $500</option>
+            <option value="$500 - $1,000">$500 - $1,000</option>
+            <option value="$1,000 - $3,000">$1,000 - $3,000</option>
+            <option value="$3,000+">$3,000+</option>
             <option value="Not sure yet">Not sure yet</option>
           </select>
         </label>

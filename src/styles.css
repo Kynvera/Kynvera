@@ -103,8 +103,30 @@ body::before {
   to { transform: translate3d(12%, 10%, 0) scale(1.08); }
 }
 
-/* Hero film owns a compositor layer so scrub seeks never force layout. */
-.hero-film { transform: translateZ(0); background: #000; }
+/* Cursor-follow position (0..1) driven by useHeroCursor — defaults to center. */
+:root { --mx: 0.5; --my: 0.42; }
+
+/* Hero film owns a compositor layer so scrub seeks never force layout.
+   It also drifts gently toward the cursor (parallax). Scale hides edges. */
+.hero-film {
+  transform:
+    translate3d(calc((var(--mx) - 0.5) * 34px), calc((var(--my) - 0.5) * 24px), 0)
+    scale(1.07);
+  background: #000;
+  will-change: transform;
+}
+
+/* Soft gold glow that trails the cursor across the hero. Pure CSS vars —
+   no layout, no repaints of content, compositor-friendly. */
+.hero-cursor-glow {
+  background:
+    radial-gradient(
+      560px circle at calc(var(--mx) * 100%) calc(var(--my) * 100%),
+      rgba(216, 178, 112, 0.17),
+      rgba(216, 178, 112, 0.05) 42%,
+      transparent 70%
+    );
+}
 
 /* ============================================================
    Page body — single warm-ink world
