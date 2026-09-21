@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useTypewriter } from './hooks/useTypewriter'
 import { useVideoScrub } from './hooks/useVideoScrub'
 import ContactForm from './components/ContactForm'
@@ -203,15 +203,19 @@ function ProjectVisual({ visual }: { visual: string }) {
 }
 
 function ProjectDetailPage({ project, onBack }: { project: Project; onBack: () => void }) {
+  const handleBrandClick = (event: React.MouseEvent) => {
+    event.preventDefault()
+    onBack()
+  }
   return (
     <main className="project-page min-h-screen bg-black text-white">
-      <video className="project-page-video" autoPlay muted loop playsInline>
+      <video className="project-page-video" autoPlay muted loop playsInline preload="metadata">
         <source src={PROJECT_VIDEO_URL} type="video/mp4" />
       </video>
       <div className="project-page-overlay" aria-hidden="true" />
       <nav className="project-page-nav">
         <button type="button" onClick={onBack} className="project-back"><span aria-hidden="true">←</span> All projects</button>
-        <a href="#main" onClick={onBack} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
+        <a href="#projects" onClick={handleBrandClick} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
         <span className="project-page-status">{project.status}</span>
       </nav>
       <section className="project-page-hero">
@@ -236,11 +240,15 @@ function ProjectDetailPage({ project, onBack }: { project: Project; onBack: () =
 }
 
 function PersonDetailPage({ person, onBack }: { person: TeamMember; onBack: () => void }) {
+  const handleBrandClick = (event: React.MouseEvent) => {
+    event.preventDefault()
+    onBack()
+  }
   return (
     <main className={`person-page person-${person.slug} min-h-screen text-white`}>
       <nav className="person-page-nav">
         <button type="button" onClick={onBack} className="project-back"><span aria-hidden="true">←</span> The people</button>
-        <a href="#main" onClick={onBack} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
+        <a href="#about" onClick={handleBrandClick} className="project-page-brand"><img src="/assets/logo/kynvera-symbol.svg" alt="" />Kynvera</a>
         <span className="project-page-status">FOUNDER / KYNVERA</span>
       </nav>
       <section className="person-page-hero">
@@ -271,6 +279,7 @@ function App() {
   const [detailHash, setDetailHash] = useState(() => window.location.hash)
   const videoRef = useRef<HTMLVideoElement>(null)
   const scrollMeterRef = useRef<HTMLSpanElement>(null)
+  const showTopRef = useRef(false)
 
   useVideoScrub(videoRef)
 
@@ -280,12 +289,25 @@ function App() {
     600,
   )
 
+  const selectedProjectPage = useMemo(
+    () => projects.find((project) => detailHash === `#project-${project.index}`),
+    [detailHash],
+  )
+  const selectedPersonPage = useMemo(
+    () => teamMembers.find((person) => detailHash === `#person-${person.slug}`),
+    [detailHash],
+  )
+  const isDetailPage = Boolean(selectedProjectPage ?? selectedPersonPage)
+
   // Show pills after 400ms
   useEffect(() => {
     const timer = setTimeout(() => setPillsVisible(true), 400)
     return () => clearTimeout(timer)
   }, [])
 
+  // Scroll progress meter — updates the DOM directly and only re-renders
+  // when the back-to-top visibility actually flips (was re-rendering App
+  // on every scroll frame before).
   useEffect(() => {
     let ticking = false
     const updateScrollMeter = () => {
@@ -293,7 +315,11 @@ function App() {
       const max = document.documentElement.scrollHeight - window.innerHeight
       const ratio = max > 0 ? Math.min(window.scrollY / max, 1) : 0
       if (scrollMeterRef.current) scrollMeterRef.current.style.transform = `scaleX(${ratio})`
-      setShowTop(ratio > 0.12)
+      const shouldShow = ratio > 0.12
+      if (shouldShow !== showTopRef.current) {
+        showTopRef.current = shouldShow
+        setShowTop(shouldShow)
+      }
     }
     const requestMeter = () => {
       if (!ticking) { ticking = true; requestAnimationFrame(updateScrollMeter) }
@@ -310,21 +336,25 @@ function App() {
     return () => window.removeEventListener('hashchange', syncProjectPage)
   }, [])
 
-  // Analytics + scroll reveals + GitHub fetch
+  // Scroll to top whenever a detail page opens; when returning to the
+  // main page via back navigation, jump to the relevant section.
+  const navigatingBackRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (isDetailPage) {
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    } else if (navigatingBackRef.current) {
+      const target = navigatingBackRef.current
+      navigatingBackRef.current = null
+      requestAnimationFrame(() => {
+        document.querySelector(target)?.scrollIntoView({ behavior: 'instant' as ScrollBehavior, block: 'start' })
+      })
+    }
+  }, [isDetailPage])
+
+  // Analytics + GitHub fetch (runs once — independent of page switching)
   useEffect(() => {
     const analyticsSiteId = import.meta.env.VITE_FATHOM_SITE_ID
     const removeAnalytics = analyticsSiteId ? loadAnalytics(analyticsSiteId) : () => undefined
-
-    const revealElements = document.querySelectorAll<HTMLElement>('[data-reveal]')
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible')
-          observer.unobserve(entry.target)
-        }
-      })
-    }, { threshold: 0.12 })
-    revealElements.forEach((element) => observer.observe(element))
 
     const controller = new AbortController()
     const trackGithubClick = (event: MouseEvent) => {
@@ -337,12 +367,46 @@ function App() {
       .then((data) => { setRepos(data); setGithubState('ready') })
       .catch(() => setGithubState('fallback'))
 
-    return () => { observer.disconnect(); controller.abort(); document.removeEventListener('click', trackGithubClick); removeAnalytics() }
+    return () => { controller.abort(); document.removeEventListener('click', trackGithubClick); removeAnalytics() }
   }, [])
 
-  const closeMenu = () => setMenuOpen(false)
-  const projectFilters = ['ALL', ...Array.from(new Set(projects.map((project) => project.category.split(' / ')[0])))]
-  const filteredProjects = projectFilter === 'ALL' ? projects : projects.filter((project) => project.category.startsWith(projectFilter))
+  // Scroll reveals — MUST re-run every time we switch between the main
+  // page and a detail page. The old code ran once (deps []) against DOM
+  // nodes that get unmounted on navigation, so returning back left every
+  // [data-reveal] at opacity:0 (blank page).
+  useEffect(() => {
+    if (isDetailPage) return
+    let observer: IntersectionObserver | undefined
+    const frame = requestAnimationFrame(() => {
+      const revealElements = document.querySelectorAll<HTMLElement>('[data-reveal]:not(.is-visible)')
+      if (revealElements.length === 0) return
+      // If IntersectionObserver is unavailable, show everything.
+      if (typeof IntersectionObserver === 'undefined') {
+        revealElements.forEach((element) => element.classList.add('is-visible'))
+        return
+      }
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer?.unobserve(entry.target)
+          }
+        })
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' })
+      revealElements.forEach((element) => observer?.observe(element))
+    })
+    return () => { cancelAnimationFrame(frame); observer?.disconnect() }
+  }, [isDetailPage, detailHash, projectFilter])
+
+  const closeMenu = useCallback(() => setMenuOpen(false), [])
+  const projectFilters = useMemo(
+    () => ['ALL', ...Array.from(new Set(projects.map((project) => project.category.split(' / ')[0])))],
+    [],
+  )
+  const filteredProjects = useMemo(
+    () => projectFilter === 'ALL' ? projects : projects.filter((project) => project.category.startsWith(projectFilter)),
+    [projectFilter],
+  )
 
   const copyEmail = async () => {
     try {
@@ -352,19 +416,30 @@ function App() {
     } catch { /* clipboard unavailable — address is visible next to the button */ }
   }
 
-  const openProjectPage = (project: Project) => {
+  const openProjectPage = useCallback((project: Project) => {
     trackEvent('project_clicked')
-    window.location.hash = `project-${project.index}`
-  }
+    window.location.hash = `#project-${project.index}`
+  }, [])
 
-  const openPersonPage = (person: TeamMember) => {
-    window.location.hash = `person-${person.slug}`
-  }
+  const openPersonPage = useCallback((person: TeamMember) => {
+    window.location.hash = `#person-${person.slug}`
+  }, [])
 
-  const selectedProjectPage = projects.find((project) => detailHash === `#project-${project.index}`)
-  const selectedPersonPage = teamMembers.find((person) => detailHash === `#person-${person.slug}`)
-  if (selectedProjectPage) return <ProjectDetailPage project={selectedProjectPage} onBack={() => { window.location.hash = 'projects' }} />
-  if (selectedPersonPage) return <PersonDetailPage person={selectedPersonPage} onBack={() => { window.location.hash = 'about' }} />
+  const goBackToProjects = useCallback(() => {
+    navigatingBackRef.current = '#projects'
+    window.location.hash = '#projects'
+    // If hash was already #projects (no hashchange fires), force the sync.
+    setDetailHash('#projects')
+  }, [])
+
+  const goBackToAbout = useCallback(() => {
+    navigatingBackRef.current = '#about'
+    window.location.hash = '#about'
+    setDetailHash('#about')
+  }, [])
+
+  if (selectedProjectPage) return <ProjectDetailPage project={selectedProjectPage} onBack={goBackToProjects} />
+  if (selectedPersonPage) return <PersonDetailPage person={selectedPersonPage} onBack={goBackToAbout} />
 
   return (
     <div className="min-h-screen relative bg-black text-white">
@@ -377,7 +452,7 @@ function App() {
         style={{ objectPosition: '70% center' }}
         muted
         playsInline
-        preload="auto"
+        preload="metadata"
       >
         <source src={VIDEO_URL} type="video/mp4" />
       </video>

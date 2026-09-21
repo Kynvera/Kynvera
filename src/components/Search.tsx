@@ -10,18 +10,30 @@ type SearchItem = {
   tags?: string
 }
 
-export default function Search({ items }: { items: SearchItem[] }) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const [activeIndex, setActiveIndex] = useState(0)
+// Cache the lunr index per items-array reference — Search is mounted twice
+// (desktop nav + mobile overlay) and rebuilding on every keystroke was wasteful.
+const indexCache = new WeakMap<object, lunr.Index>()
 
-  const index = useMemo(() => lunr(function () {
+function getIndex(items: SearchItem[]): lunr.Index {
+  const cached = indexCache.get(items)
+  if (cached) return cached
+  const built = lunr(function () {
     this.ref('id')
     this.field('name')
     this.field('description')
     this.field('tags')
     items.forEach((item) => this.add(item))
-  }), [items])
+  })
+  indexCache.set(items, built)
+  return built
+}
+
+export default function Search({ items }: { items: SearchItem[] }) {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  const index = useMemo(() => getIndex(items), [items])
 
   const results = useMemo(() => {
     const normalized = query.trim()
@@ -52,7 +64,22 @@ export default function Search({ items }: { items: SearchItem[] }) {
   const selectResult = (item: SearchItem) => {
     setOpen(false)
     setQuery('')
-    document.querySelector(item.href)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    const scrollToTarget = (attempts: number) => {
+      const target = document.querySelector(item.href)
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        // Keep the URL in sync without triggering a detail-page remount.
+        if (window.location.hash !== item.href) history.replaceState(null, '', item.href)
+      } else if (attempts > 0) {
+        // We are likely on a project/person detail page where the section
+        // isn't mounted — exit the detail view first, then retry.
+        if (window.location.hash.startsWith('#project-') || window.location.hash.startsWith('#person-')) {
+          window.location.hash = item.href
+        }
+        requestAnimationFrame(() => scrollToTarget(attempts - 1))
+      }
+    }
+    scrollToTarget(30)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
